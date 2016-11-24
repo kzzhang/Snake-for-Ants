@@ -236,10 +236,10 @@ void initGame(board *b, snake *p, fruit *point){
 
 //updates game after 1 increment
 void moveTurnGame(board *b, snake *p, fruit *point){
-  snakeMove(board, player);
-  checkCollisionFruit(board, fruit, player);
-  checkSelfCollision(player);
-  updateBoard(board, player, fruit);
+  snakeMove(b, p);
+  checkCollisionFruit(b, point, p);
+  checkSelfCollision(p);
+  updateBoard(b, p, point);
 }
 
 //frees memory associated with game

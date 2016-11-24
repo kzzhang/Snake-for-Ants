@@ -26,7 +26,7 @@ typedef struct{
 }fruit;
 
 //function prototypes
-snake *snakeCreate(void);
+snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3);
 snake *deleteSnake(snake *p);
 void setSnakeDir(snake *p, char value);
 board *boardCreate(void);
