@@ -8,10 +8,10 @@
 
 //creates empty instance of the snake
 //snake has length 3 and is initialized in position of given coordinates
-snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3){
+snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3, char dir){
   snake *temp = malloc(sizeof(snake));
   temp->body = malloc(6*sizeof(int));
-  temp->direction = 'r';
+  temp->direction = dir;
   temp->bodyLength = 3;
   temp->body[0] = y1;
   temp->body[1] = x1;
@@ -225,7 +225,7 @@ int checkSelfCollision(snake *p){
 void initGame(board *b, snake *p, fruit *point){
   time_t t;
   srand((unsigned) time(&t));
-  p = snakeCreate(0, 2, 0, 1, 0, 0);
+  p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
   b = boardCreate();
   point = fruitCreate();
 
@@ -247,5 +247,101 @@ void endGame(board *b, snake *p, fruit *point){
   point = deleteFruit(point);
   b = deleteBoard(b);
   p = deleteSnake(p);
+}
+
+//2p
+//spawns fruit in a 2 player scenario
+void spawnFruit2P(board *b, fruit *point, snake *p, snake *e){
+  if (point->eaten == 1){
+    do{
+      point->location[0] = (rand()%height);
+      point->location[1] = (rand()%width);
+    }while (checkCollisionSnake(point->location[0], point->location[1], p)==1 && checkCollisionSnake(point->location[0], point->location[1], e)==1);
+    point->eaten = 0;
+  }
+}
+
+//paints the updated board for 2 players
+void updateBoard2P(board *b, snake *p, snake *e, fruit *point){
+  for (int k = 0; k<(p->bodyLength*2); k+=2){
+    b->layout[p->body[k]][p->body[k+1]] = 1;
+  }
+  for (int i = 0; i<(e->bodyLength*2); i+=2){
+    b->layout[e->body[i]][e->body[i+1]] = 3;
+  }
+  if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
+}
+
+//checks if either snake has had a collision with the fruit and respawns fruit if necessary
+int checkCollisionFruit2P(board *b, fruit *point, snake *p, snake *e){
+  if (checkCollision(point->location[0], point->location[1], p->body[0], p->body[1])==1){
+    p->score++;
+    point->eaten = 1;
+    addTail(p);
+  }
+  if (checkCollision(point->location[0], point->location[1], e->body[0], e->body[1])==1){
+    e->score++;
+    point->eaten = 1;
+    addTail(e);
+  }
+  if (point->eaten == 1) spawnFruit2P(b, point, p, e);
+}
+
+//checks for possible snake-snake collisions for two players
+//returns 0 if no collision, 1 if snake p has a collision, 2 if snake e has a collision, and 3 if both snakes have collisions
+int checkPlayerCollisions2P(snake *p, snake *e){
+  int status = 0;
+  for (int k = 2; k<(p->bodyLength*2); k+=2){
+    if (p->body[0] == p->body[k] && p->body[1] == p->body[k+1]) status = 1;
+  }
+  for (int k = 2; k<(e->bodyLength*2); k+=2){
+    if (p->body[0] == e->body[k] && p->body[1] == e->body[k+1]) status = 1;
+  }
+  for (int k = 2; k<(e->bodyLength*2); k+=2){
+    if (e->body[0] == e->body[k] && e->body[1] == e->body[k+1]){
+      if (status == 1) status = 3;
+      else status = 2;
+    }
+  }
+  for (int k = 2; k<(p->bodyLength*2); k+=2){
+    if (e->body[0] == p->body[k] && e->body[1] == p->body[k+1]){
+      if (status == 1 || status == 2) status = 3;
+      else status = 2;
+    }
+  }
+  if (p->body[0] == e->body[0] && p->body[1] == e->body[1]) status = 3;
+  return status;
+}
+
+//creates 2 player game
+void initGame2P(board *b, snake *p, snake *e,fruit *point){
+  time_t t;
+  srand((unsigned) time(&t));
+  snake *player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+  snake *enemy = snakeCreate(height-1, width-3, height-1, width-2, height-1, width-1, 'l');
+  board *board = boardCreate();
+  fruit *fruit = fruitCreate();
+  
+  clearBoard(board);
+  spawnFruit2P(board, fruit, player, enemy);
+  updateBoard2P(board, player, enemy, fruit);
+}
+
+//advances game by one increment for two players
+void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point){
+  snakeMove(b, p);
+  snakeMove(b, e);
+  checkCollisionFruit2P(b, point, p, e);
+  checkPlayerCollisions2P(p, e);
+  clearBoard(b);
+  updateBoard2P(b, p, e, point);
+}
+
+//deletes 2 player game
+void endGame2P(board *b, snake *p, snake*e, fruit *point){
+  point = deleteFruit(point);
+  b = deleteBoard(b);
+  p = deleteSnake(p);
+  e = deleteSnake(e);
 }
 

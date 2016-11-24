@@ -26,7 +26,7 @@ typedef struct{
 }fruit;
 
 //function prototypes
-snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3);
+snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3, char dir);
 snake *deleteSnake(snake *p);
 void setSnakeDir(snake *p, char value);
 board *boardCreate(void);
@@ -35,6 +35,7 @@ void printBoard(board *b);
 void clearBoard(board *b);
 fruit *fruitCreate(void);
 fruit *deleteFruit(fruit *point);
+
 void spawnFruit(board *b, fruit *point, snake *p);
 int checkCollisionFruit(board *b, fruit *point, snake *p);
 void snakeMove(board *b, snake *p);
@@ -42,8 +43,19 @@ void updateBoard(board *b, snake *p, fruit *point);
 int checkCollision(int y1, int x1, int y2, int x2);
 int checkCollisionSnake(int y, int x, snake *p);
 int checkSelfCollision(snake *p);
+
+//for 1 player
 void initGame(board *b, snake *p, fruit *point);
 void moveTurnGame(board *b, snake *p, fruit *point);
 void endGame(board *b, snake *p, fruit *point);
+
+//2 player specific functions
+void spawnFruit2P(board *b, fruit *point, snake *p, snake *e);
+void updateBoard2P(board *b, snake *p, snake *e, fruit *point);
+int checkCollisionFruit2P(board *b, fruit *point, snake *p, snake *e);
+int checkPlayerCollisions2P(snake *p, snake *e);
+void initGame2P(board *b, snake *p, snake *e,fruit *point);
+void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point);
+void endGame2P(board *b, snake *p, snake *e, fruit *point);
 
 #endif
