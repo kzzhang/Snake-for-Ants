@@ -1,5 +1,9 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef _GAME.H
+#define _GAME.H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #define width 128
 #define height 32
@@ -24,6 +28,10 @@ typedef struct{
   int location[2];
   int eaten;
 }fruit;
+
+
+
+
 
 //function prototypes
 snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3, char dir);
@@ -58,4 +66,7 @@ void initGame2P(board *b, snake *p, snake *e,fruit *point);
 void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point);
 void endGame2P(board *b, snake *p, snake *e, fruit *point);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

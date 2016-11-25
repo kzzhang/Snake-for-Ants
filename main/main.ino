@@ -5,6 +5,7 @@
 #include "src/OrbitOledChar.h"
 #include "src/OrbitOledGrph.h"
 #include "src/delay.h"
+#include "game.h"
 
 #include <stdlib.h>
 
@@ -15,18 +16,24 @@ void GameUIupdate();
 
 
 
+
 void setup() 
 {
+  snake *player;
+board *b;
+fruit *point;
+
   WireInit();
   Serial.begin(9600);
   delay(100);
   GameUIInit();
+  
 
   
 }
 
 void loop() 
 {
-  
+  Serial.print("hello");
   GameUIupdate();
 }

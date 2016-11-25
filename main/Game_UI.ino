@@ -1,8 +1,13 @@
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
 
 int x=64;
 int y=16;
+
 
 
 static enum directions{
@@ -16,7 +21,7 @@ static enum directions{
 static enum GamePages
 {
   Welcome       = 0,
-  Snake         = 1,
+  SnakePage     = 1,
   Score         = 2,
   NumberOfPages = 3,
 } gameUiPage = Welcome;
@@ -45,6 +50,7 @@ void GameUIInit()
   DelayInit();
   OrbitOledSetDrawMode(modOledSet);
   OrbitOledSetDrawColor(0x09); 
+  
 
   
 
@@ -77,7 +83,7 @@ static void pageWelcome()
   {
     OrbitOledClearBuffer();
     OrbitOledClear();
-    gameUiPage = Snake;
+    gameUiPage = SnakePage;
   }
   
 
@@ -85,6 +91,7 @@ static void pageWelcome()
 }
 
 static void pageSnake(){
+  
   
   OrbitOledMoveTo(x, y);
   OrbitOledLineTo(x+1,y);
@@ -187,7 +194,7 @@ void GameUIupdate()
   case Welcome:
     pageWelcome();
     break;
-  case Snake:
+  case SnakePage:
     pageSnake();
     break;
   }

@@ -1,3 +1,7 @@
+
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 #include "game.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -82,15 +86,15 @@ fruit *fruitCreate(void){
 //deletes fruit struct
 fruit *deleteFruit(fruit *point){
   free(point);
-  return NULL; 
+  return NULL;
 }
 
 //spawns fruit on board not occupied by snake p if fruit was eaten
 void spawnFruit(board *b, fruit *point, snake *p){
   if (point->eaten == 1){
     do{
-      point->location[0] = (rand()%height);
-      point->location[1] = (rand()%width);
+      point->location[0] = random(height);
+      point->location[1] = random(width);
     }while (checkCollisionSnake(point->location[0], point->location[1], p)==1);
     point->eaten = 0;
   }
@@ -119,11 +123,11 @@ void addTail(snake *p){
   if (ydif == 0 && xdif == -1) dir = 'l';
   if (ydif == 1 && xdif == 0) dir = 'd';
   if (ydif == -1 && xdif == 0) dir = 'u';
-  
+
   ydif = p->body[(2*p->bodyLength)-2];
   xdif = p->body[(2*p->bodyLength)-1];
 
-  p->body = realloc(p->body, sizeof(int)*(2*(p->bodyLength+3)));
+  p->body = (int*)realloc(p->body, sizeof(int)*(2*(p->bodyLength+3)));
   for (int i = 1; i<=3; i++){
     p->bodyLength += 1;
     switch(dir){
@@ -150,7 +154,7 @@ void addTail(snake *p){
         if (ydif >= height) ydif = 0;
         p->body[(2*p->bodyLength)-2] = ydif;
         p->body[(2*p->bodyLength)-1] = xdif;
-        break;  
+        break;
     }
   }
 }
@@ -194,11 +198,12 @@ void updateBoard(board *b, snake *p, fruit *point){
   clearBoard(b);
   for (int k = 0; k<(p->bodyLength*2); k+=2){
     b->layout[p->body[k]][p->body[k+1]] = 1;
+   
   }
   if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
 }
 
-//checks for collision between two points 
+//checks for collision between two points
 int checkCollision(int y1, int x1, int y2, int x2){
   if ((y1 == y2) && (x1 == x2)) return 1;
   else return 0;
@@ -223,12 +228,10 @@ int checkSelfCollision(snake *p){
 
 //creates game for 1 player
 void initGame(board *b, snake *p, fruit *point){
-  time_t t;
-  srand((unsigned) time(&t));
   p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
   b = boardCreate();
   point = fruitCreate();
-
+  
   clearBoard(b);
   spawnFruit(b, point, p);
   updateBoard(b, p, point);
@@ -254,8 +257,8 @@ void endGame(board *b, snake *p, fruit *point){
 void spawnFruit2P(board *b, fruit *point, snake *p, snake *e){
   if (point->eaten == 1){
     do{
-      point->location[0] = (rand()%height);
-      point->location[1] = (rand()%width);
+      point->location[0] = random(height);
+      point->location[1] = random(width);
     }while (checkCollisionSnake(point->location[0], point->location[1], p)==1 && checkCollisionSnake(point->location[0], point->location[1], e)==1);
     point->eaten = 0;
   }
@@ -315,13 +318,11 @@ int checkPlayerCollisions2P(snake *p, snake *e){
 
 //creates 2 player game
 void initGame2P(board *b, snake *p, snake *e,fruit *point){
-  time_t t;
-  srand((unsigned) time(&t));
   snake *player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
   snake *enemy = snakeCreate(height-1, width-3, height-1, width-2, height-1, width-1, 'l');
   board *board = boardCreate();
   fruit *fruit = fruitCreate();
-  
+
   clearBoard(board);
   spawnFruit2P(board, fruit, player, enemy);
   updateBoard2P(board, player, enemy, fruit);
@@ -344,4 +345,8 @@ void endGame2P(board *b, snake *p, snake*e, fruit *point){
   p = deleteSnake(p);
   e = deleteSnake(e);
 }
+
+//#ifdef __cplusplus
+//}
+//#endif
 
