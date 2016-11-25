@@ -94,7 +94,7 @@ static void pageSnake(){
   
   
   OrbitOledMoveTo(x, y);
-  OrbitOledLineTo(x+1,y);
+  OrbitOledLineTo(x+5,y);
   
   while (currentDir == right){
     
@@ -105,7 +105,7 @@ static void pageSnake(){
     }
     DelayMs(125);
     OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x+1,y);
+    OrbitOledLineTo(x+5,y);
     OrbitOledUpdate();
     inputSetup();
     if(gameInputState.buttons[0].pressed){
@@ -127,7 +127,7 @@ static void pageSnake(){
     }
     DelayMs(125);
     OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x-1,y);
+    OrbitOledLineTo(x-5,y);
     OrbitOledUpdate();
     inputSetup();
     if(gameInputState.buttons[0].pressed){
@@ -149,7 +149,7 @@ static void pageSnake(){
     }
     DelayMs(125);
     OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x,y-1);
+    OrbitOledLineTo(x,y-5);
     OrbitOledUpdate();
     inputSetup();
     if(gameInputState.buttons[0].pressed){
@@ -169,7 +169,7 @@ static void pageSnake(){
     }
     DelayMs(125);
     OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x,y+1);
+    OrbitOledLineTo(x,y+5);
     OrbitOledUpdate();
     inputSetup();
     if(gameInputState.buttons[0].pressed){

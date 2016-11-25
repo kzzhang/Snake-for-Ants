@@ -27,6 +27,7 @@ fruit *point;
   Serial.begin(9600);
   delay(100);
   GameUIInit();
+  //initGame(b,player,point);
   
 
   
@@ -34,6 +35,6 @@ fruit *point;
 
 void loop() 
 {
-  Serial.print("hello");
+  Serial.println("hello");
   GameUIupdate();
 }

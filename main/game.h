@@ -1,5 +1,5 @@
-#ifndef _GAME.H
-#define _GAME.H
+#ifndef _GAME_H
+#define _GAME_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,6 +46,7 @@ fruit *deleteFruit(fruit *point);
 
 void spawnFruit(board *b, fruit *point, snake *p);
 int checkCollisionFruit(board *b, fruit *point, snake *p);
+void addTail(snake *p);
 void snakeMove(board *b, snake *p);
 void updateBoard(board *b, snake *p, fruit *point);
 int checkCollision(int y1, int x1, int y2, int x2);

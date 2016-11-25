@@ -200,7 +200,7 @@ void updateBoard(board *b, snake *p, fruit *point){
     b->layout[p->body[k]][p->body[k+1]] = 1;
    
   }
-  if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
+  //if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
 }
 
 //checks for collision between two points
@@ -228,6 +228,9 @@ int checkSelfCollision(snake *p){
 
 //creates game for 1 player
 void initGame(board *b, snake *p, fruit *point){
+  time_t t;
+  //srand((unsigned) time(&t));
+  srand(time(NULL));
   p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
   b = boardCreate();
   point = fruitCreate();
