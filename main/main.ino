@@ -11,7 +11,7 @@
 void WireInit();
 void GameUIInit();
 
-void GameUITick();
+void GameUIupdate();
 
 
 
@@ -28,5 +28,5 @@ void setup()
 void loop() 
 {
   
-  GameUITick();
+  GameUIupdate();
 }
