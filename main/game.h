@@ -5,8 +5,8 @@ extern "C" {
 #endif
 
 
-#define width 128
-#define height 32
+#define boardWidth 128
+#define boardHeight 32
 
 //snake structure for player
 typedef struct{
@@ -20,7 +20,7 @@ typedef struct{
 
 //structure representing the board
 typedef struct{
-  int layout[height][width];
+  int layout[boardHeight][boardWidth];
 }board;
 
 //structure for fruit, 1 is eaten, 0 is uneaten
@@ -28,10 +28,6 @@ typedef struct{
   int location[2];
   int eaten;
 }fruit;
-
-
-
-
 
 //function prototypes
 snake *snakeCreate(int y1, int x1, int y2, int x2, int y3, int x3, char dir);

@@ -19,15 +19,16 @@ void GameUIupdate();
 
 void setup() 
 {
+  randomSeed(analogRead(0));
   snake *player;
-board *b;
-fruit *point;
+  board *b;
+  fruit *point;
 
   WireInit();
   Serial.begin(9600);
   delay(100);
   GameUIInit();
-  //initGame(b,player,point);
+  initGame(b,player,point);
   
 
   
