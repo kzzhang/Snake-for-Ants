@@ -86,11 +86,11 @@ fruit *deleteFruit(fruit *point){
 }
 
 //spawns fruit on board not occupied by snake p if fruit was eaten
-void spawnFruit(board *b, fruit *point, snake *p){
+void spawnFruit(fruit *point, snake *p){
   if (point->eaten == 1){
     do{
-      point->location[0] = random(boardHeight);
-      point->location[1] = random(boardWidth);
+      point->location[0] = random(boardHeight)%boardHeight;
+      point->location[1] = random(boardWidth)%boardWidth;
     }while (checkCollisionSnake(point->location[0], point->location[1], p)==1);
     point->eaten = 0;
   }
@@ -103,7 +103,7 @@ int checkCollisionFruit(board *b, fruit *point, snake *p){
     p->score++;
     point->eaten = 1;
     addTail(p);
-    spawnFruit(b, point, p);
+    spawnFruit(point, p);
   }
 }
 
@@ -229,7 +229,7 @@ void initGame(board *b, snake *p, fruit *point){
   point = fruitCreate();
   
   clearBoard(b);
-  spawnFruit(b, point, p);
+  spawnFruit(point, p);
   updateBoard(b, p, point);
 }
 
@@ -314,14 +314,14 @@ int checkPlayerCollisions2P(snake *p, snake *e){
 
 //creates 2 player game
 void initGame2P(board *b, snake *p, snake *e,fruit *point){
-  snake *player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-  snake *enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
-  board *board = boardCreate();
-  fruit *fruit = fruitCreate();
+  p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+  e = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
+  b = boardCreate();
+  point = fruitCreate();
 
-  clearBoard(board);
-  spawnFruit2P(board, fruit, player, enemy);
-  updateBoard2P(board, player, enemy, fruit);
+  clearBoard(b);
+  spawnFruit2P(b, point, p, e);
+  updateBoard2P(b, p, e, point);
 }
 
 //advances game by one increment for two players
@@ -341,3 +341,4 @@ void endGame2P(board *b, snake *p, snake*e, fruit *point){
   p = deleteSnake(p);
   e = deleteSnake(e);
 }
+

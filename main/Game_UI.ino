@@ -90,104 +90,91 @@ static void pageWelcome()
   
 }
 
-static void pageSnake(){
-  
-  
-  OrbitOledMoveTo(x, y);
-  OrbitOledLineTo(x+5,y);
-  
-  while (currentDir == right){
-    
-    OrbitOledClearBuffer();
-    x++;
-    if(x>128){
-      x =0 ;
-    }
-    DelayMs(125);
-    OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x+5,y);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      currentDir = down;
-    }
-    if(gameInputState.buttons[1].pressed){
-      currentDir = up;
-    }
-    
-    
-   
+static void drawBoard(snake *player, fruit *point){
+  OrbitOledClearBuffer();
+  for (int k = 0; k<(player->bodyLength*2); k+=2){
+    OrbitOledMoveTo(player->body[k+1], player->body[k]);
+    OrbitOledDrawPixel();
   }
-
-  while (currentDir == left){
-    OrbitOledClearBuffer();
-    x--;
-    if(x<0){
-      x =128 ;
-    }
-    DelayMs(125);
-    OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x-5,y);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      currentDir = up;
-    }
-    
-    if(gameInputState.buttons[1].pressed){
-      currentDir = down;
-    }
-  
-    
-    
-  }
-  while (currentDir == up){
-    OrbitOledClearBuffer();
-    y--;
-    if(y<-2){
-      y =32 ;
-    }
-    DelayMs(125);
-    OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x,y-5);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      currentDir = right;
-    }
-    if(gameInputState.buttons[1].pressed){
-      currentDir = left;
-    }
-    
-    
-  }
-  while (currentDir == down){
-    OrbitOledClearBuffer();
-    y++;
-    if(y>34){
-      y =0 ;
-    }
-    DelayMs(125);
-    OrbitOledMoveTo(x, y);
-    OrbitOledLineTo(x,y+5);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      currentDir = left;
-    }
-    if(gameInputState.buttons[1].pressed){
-      currentDir = right;
-    }
-    
-    
-  }
- 
+  OrbitOledMoveTo(point->location[1], point->location[0]);
+  OrbitOledDrawPixel();
 }
 
+static void pageSnake(board *b, snake *player, fruit *point){
+  while (player->direction == 'r'){
+    snakeMove(b, player);
+    checkCollisionFruit(b, point, player);
+    DelayMs(50);
+    drawBoard(player, point);
+    OrbitOledUpdate();
+    inputSetup();
+    if(gameInputState.buttons[0].pressed){
+      setSnakeDir(player, 'd');
+    }
+    if(gameInputState.buttons[1].pressed){
+      setSnakeDir(player, 'u');
+    }
+  }
 
+  while (player->direction == 'l'){
+    snakeMove(b, player);
+    checkCollisionFruit(b, point, player);
+    DelayMs(50);
+    drawBoard(player, point);
+    OrbitOledUpdate();
+    inputSetup();
+    if(gameInputState.buttons[0].pressed){
+      setSnakeDir(player, 'u');
+    }
+    
+    if(gameInputState.buttons[1].pressed){
+      setSnakeDir(player, 'd');
+    }
+  }
+  
+  while (player->direction == 'u'){
+    snakeMove(b, player);
+    checkCollisionFruit(b, point, player);
+    DelayMs(50);
+    drawBoard(player, point);
+    OrbitOledUpdate();
+    inputSetup();
+    if(gameInputState.buttons[0].pressed){
+      setSnakeDir(player, 'r');
+    }
+    if(gameInputState.buttons[1].pressed){
+      setSnakeDir(player, 'l');
+    }
+  }
+  
+  while (player->direction == 'd'){
+    snakeMove(b, player);
+    checkCollisionFruit(b, point, player);
+    DelayMs(50);
+    drawBoard(player, point);
+    OrbitOledUpdate();
+    inputSetup();
+    if(gameInputState.buttons[0].pressed){
+      setSnakeDir(player, 'l');
+    }
+    if(gameInputState.buttons[1].pressed){
+      setSnakeDir(player, 'r');
+    }   
+  }
+}
 
 void GameUIupdate()
 {
+  if (!player){
+    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+    b = boardCreate();
+    point = fruitCreate();
+    
+    clearBoard(b);
+    spawnFruit(point, player);
+    updateBoard(b, player, point);
+  }
+
   inputSetup();
   switch(gameUiPage)
   {
@@ -195,9 +182,10 @@ void GameUIupdate()
     pageWelcome();
     break;
   case SnakePage:
-    pageSnake();
+    pageSnake(b, player, point);
     break;
   }
  
   OrbitOledUpdate();
 }
+

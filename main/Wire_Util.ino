@@ -32,3 +32,4 @@ void WireRequestArray(int address, uint32_t* buffer, uint8_t amount)
     *(buffer++) = orbitWire.read();
   } while(--amount > 0);
 }
+

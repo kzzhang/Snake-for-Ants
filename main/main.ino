@@ -9,33 +9,20 @@
 
 #include <stdlib.h>
 
-void WireInit();
-void GameUIInit();
-
-void GameUIupdate();
-
-
-
+snake *player = NULL;
+board *b = NULL;
+fruit *point = NULL;
 
 void setup() 
 {
   randomSeed(analogRead(0));
-  snake *player;
-  board *b;
-  fruit *point;
-
   WireInit();
   Serial.begin(9600);
   delay(100);
   GameUIInit();
-  initGame(b,player,point);
-  
-
-  
 }
 
 void loop() 
 {
-  Serial.println("hello");
   GameUIupdate();
 }
