@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 snake *player = NULL;
-board *b = NULL;
 fruit *point = NULL;
 
 void setup() 

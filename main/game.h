@@ -41,9 +41,9 @@ fruit *fruitCreate(void);
 fruit *deleteFruit(fruit *point);
 
 void spawnFruit(fruit *point, snake *p);
-int checkCollisionFruit(board *b, fruit *point, snake *p);
+int checkCollisionFruit(fruit *point, snake *p);
 void addTail(snake *p);
-void snakeMove(board *b, snake *p);
+void snakeMove(snake *p);
 void updateBoard(board *b, snake *p, fruit *point);
 int checkCollision(int y1, int x1, int y2, int x2);
 int checkCollisionSnake(int y, int x, snake *p);

@@ -98,17 +98,19 @@ void spawnFruit(fruit *point, snake *p){
 
 //checks for collision between head of the snake and the fruit
 //updates fruit status, length of snake, and score if needed
-int checkCollisionFruit(board *b, fruit *point, snake *p){
+int checkCollisionFruit(fruit *point, snake *p){
   if (checkCollision(point->location[0], point->location[1], p->body[0], p->body[1])==1){
     p->score++;
     point->eaten = 1;
     addTail(p);
     spawnFruit(point, p);
+    return 1;
   }
+  return 0;
 }
 
 
-//adds length of 3 to the tail of the snake
+//adds length of 4 to the tail of the snake
 void addTail(snake *p){
   int ydif;
   int xdif;
@@ -123,8 +125,8 @@ void addTail(snake *p){
   ydif = p->body[(2*p->bodyLength)-2];
   xdif = p->body[(2*p->bodyLength)-1];
 
-  p->body = (int*)realloc(p->body, sizeof(int)*(2*(p->bodyLength+3)));
-  for (int i = 1; i<=3; i++){
+  p->body = (int*)realloc(p->body, sizeof(int)*(2*(p->bodyLength+4)));
+  for (int i = 1; i<=4; i++){
     p->bodyLength += 1;
     switch(dir){
       case 'r':
@@ -156,7 +158,7 @@ void addTail(snake *p){
 }
 
 //increments snake based on direction of motion
-void snakeMove(board *b, snake *p){
+void snakeMove(snake *p){
   int newy = p->body[0];
   int newx = p->body[1];
   int tempy;
@@ -235,8 +237,8 @@ void initGame(board *b, snake *p, fruit *point){
 
 //updates game after 1 increment
 void moveTurnGame(board *b, snake *p, fruit *point){
-  snakeMove(b, p);
-  checkCollisionFruit(b, point, p);
+  snakeMove(p);
+  checkCollisionFruit(point, p);
   checkSelfCollision(p);
   updateBoard(b, p, point);
 }
@@ -326,8 +328,8 @@ void initGame2P(board *b, snake *p, snake *e,fruit *point){
 
 //advances game by one increment for two players
 void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point){
-  snakeMove(b, p);
-  snakeMove(b, e);
+  snakeMove(p);
+  snakeMove(e);
   checkCollisionFruit2P(b, point, p, e);
   checkPlayerCollisions2P(p, e);
   clearBoard(b);

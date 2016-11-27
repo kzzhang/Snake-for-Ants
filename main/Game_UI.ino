@@ -4,11 +4,8 @@
 #include <stdio.h>
 #include <time.h>
 
-
 int x=64;
 int y=16;
-
-
 
 static enum directions{
   left = 0,
@@ -16,7 +13,6 @@ static enum directions{
   up = 2,
   down = 3,
 }currentDir = left;
-
 
 static enum GamePages
 {
@@ -50,9 +46,6 @@ void GameUIInit()
   DelayInit();
   OrbitOledSetDrawMode(modOledSet);
   OrbitOledSetDrawColor(0x09); 
-  
-
-  
 
   for(int i = 0; i < numButtons; ++i )
     pinMode(Buttons[i], INPUT);
@@ -60,16 +53,13 @@ void GameUIInit()
 
 static void inputSetup()
 {
-  
   for(int i = 0; i < numButtons; ++i )
   {
     bool previousState = gameInputState.buttons[i].state;
     gameInputState.buttons[i].state = digitalRead(Buttons[i]);
     gameInputState.buttons[i].pressed = (!previousState && gameInputState.buttons[i].state);
   }
- 
 }
-
 
 static void pageWelcome()
 {
@@ -85,9 +75,6 @@ static void pageWelcome()
     OrbitOledClear();
     gameUiPage = SnakePage;
   }
-  
-
-  
 }
 
 static void drawBoard(snake *player, fruit *point){
@@ -100,81 +87,65 @@ static void drawBoard(snake *player, fruit *point){
   OrbitOledDrawPixel();
 }
 
-static void pageSnake(board *b, snake *player, fruit *point){
-  while (player->direction == 'r'){
-    snakeMove(b, player);
-    checkCollisionFruit(b, point, player);
-    DelayMs(50);
-    drawBoard(player, point);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      setSnakeDir(player, 'd');
-    }
-    if(gameInputState.buttons[1].pressed){
-      setSnakeDir(player, 'u');
-    }
-  }
-
-  while (player->direction == 'l'){
-    snakeMove(b, player);
-    checkCollisionFruit(b, point, player);
-    DelayMs(50);
-    drawBoard(player, point);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      setSnakeDir(player, 'u');
-    }
-    
-    if(gameInputState.buttons[1].pressed){
-      setSnakeDir(player, 'd');
+static void pageSnake(snake *player, fruit *point){
+  if(gameInputState.buttons[0].pressed){
+    switch (player->direction){
+      case 'r':
+        setSnakeDir(player, 'd');
+        break;
+      case 'l':
+        setSnakeDir(player, 'u');
+        break;
+      case 'u':
+        setSnakeDir(player, 'r');
+        break;
+      case 'd':
+        setSnakeDir(player, 'l');
+        break;
     }
   }
-  
-  while (player->direction == 'u'){
-    snakeMove(b, player);
-    checkCollisionFruit(b, point, player);
-    DelayMs(50);
-    drawBoard(player, point);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      setSnakeDir(player, 'r');
-    }
-    if(gameInputState.buttons[1].pressed){
-      setSnakeDir(player, 'l');
+  if(gameInputState.buttons[1].pressed){
+    switch (player->direction){
+      case 'r':
+        setSnakeDir(player, 'u');
+        break;
+      case 'l':
+        setSnakeDir(player, 'd');
+        break;
+      case 'u':
+        setSnakeDir(player, 'l');
+        break;
+      case 'd':
+        setSnakeDir(player, 'r');
+        break;
     }
   }
-  
-  while (player->direction == 'd'){
-    snakeMove(b, player);
-    checkCollisionFruit(b, point, player);
-    DelayMs(50);
-    drawBoard(player, point);
-    OrbitOledUpdate();
-    inputSetup();
-    if(gameInputState.buttons[0].pressed){
-      setSnakeDir(player, 'l');
-    }
-    if(gameInputState.buttons[1].pressed){
-      setSnakeDir(player, 'r');
-    }   
+  snakeMove(player);
+  checkCollisionFruit(point, player);
+  if (checkSelfCollision(player)){
+    delay(1000);
+    OrbitOledClearBuffer();
+    gameUiPage = Welcome;
+    player = deleteSnake(player);
+    point = deleteFruit(point);
+    pageWelcome();
   }
+  drawBoard(player, point);
+  inputSetup();
+  DelayMs(75);
 }
 
 void GameUIupdate()
 {
   if (!player){
     player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-    b = boardCreate();
+    addTail(player);
+    addTail(player);
+    addTail(player);
+    addTail(player);
     point = fruitCreate();
-    
-    clearBoard(b);
     spawnFruit(point, player);
-    updateBoard(b, player, point);
   }
-
   inputSetup();
   switch(gameUiPage)
   {
@@ -182,10 +153,8 @@ void GameUIupdate()
     pageWelcome();
     break;
   case SnakePage:
-    pageSnake(b, player, point);
+    pageSnake(player, point);
     break;
   }
- 
   OrbitOledUpdate();
 }
-
