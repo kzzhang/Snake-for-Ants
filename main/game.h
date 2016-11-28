@@ -55,9 +55,9 @@ void moveTurnGame(board *b, snake *p, fruit *point);
 void endGame(board *b, snake *p, fruit *point);
 
 //2 player specific functions
-void spawnFruit2P(board *b, fruit *point, snake *p, snake *e);
+void spawnFruit2P(fruit *point, snake *p, snake *e);
 void updateBoard2P(board *b, snake *p, snake *e, fruit *point);
-int checkCollisionFruit2P(board *b, fruit *point, snake *p, snake *e);
+int checkCollisionFruit2P(fruit *point, snake *p, snake *e);
 int checkPlayerCollisions2P(snake *p, snake *e);
 void initGame2P(board *b, snake *p, snake *e,fruit *point);
 void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point);

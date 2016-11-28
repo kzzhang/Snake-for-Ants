@@ -252,11 +252,11 @@ void endGame(board *b, snake *p, fruit *point){
 
 //2p
 //spawns fruit in a 2 player scenario
-void spawnFruit2P(board *b, fruit *point, snake *p, snake *e){
+void spawnFruit2P(fruit *point, snake *p, snake *e){
   if (point->eaten == 1){
     do{
-      point->location[0] = random(boardHeight);
-      point->location[1] = random(boardWidth);
+      point->location[0] = random(boardHeight)%boardHeight;
+      point->location[1] = random(boardWidth)%boardWidth;
     }while (checkCollisionSnake(point->location[0], point->location[1], p)==1 && checkCollisionSnake(point->location[0], point->location[1], e)==1);
     point->eaten = 0;
   }
@@ -274,7 +274,7 @@ void updateBoard2P(board *b, snake *p, snake *e, fruit *point){
 }
 
 //checks if either snake has had a collision with the fruit and respawns fruit if necessary
-int checkCollisionFruit2P(board *b, fruit *point, snake *p, snake *e){
+int checkCollisionFruit2P(fruit *point, snake *p, snake *e){
   if (checkCollision(point->location[0], point->location[1], p->body[0], p->body[1])==1){
     p->score++;
     point->eaten = 1;
@@ -285,7 +285,11 @@ int checkCollisionFruit2P(board *b, fruit *point, snake *p, snake *e){
     point->eaten = 1;
     addTail(e);
   }
-  if (point->eaten == 1) spawnFruit2P(b, point, p, e);
+  if (point->eaten == 1){
+    spawnFruit2P(point, p, e);
+    return 1;
+  }
+  return 0;
 }
 
 //checks for possible snake-snake collisions for two players
@@ -322,7 +326,7 @@ void initGame2P(board *b, snake *p, snake *e,fruit *point){
   point = fruitCreate();
 
   clearBoard(b);
-  spawnFruit2P(b, point, p, e);
+  spawnFruit2P(point, p, e);
   updateBoard2P(b, p, e, point);
 }
 
@@ -330,7 +334,7 @@ void initGame2P(board *b, snake *p, snake *e,fruit *point){
 void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point){
   snakeMove(p);
   snakeMove(e);
-  checkCollisionFruit2P(b, point, p, e);
+  checkCollisionFruit2P(point, p, e);
   checkPlayerCollisions2P(p, e);
   clearBoard(b);
   updateBoard2P(b, p, e, point);
