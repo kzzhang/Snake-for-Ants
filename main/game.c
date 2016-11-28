@@ -35,43 +35,6 @@ void setSnakeDir(snake *p, char value){
   p->direction = value;
 }
 
-//creates instance of board struct
-board *boardCreate(void){
-  board *temp = malloc(sizeof(board));
-  for (int i = 0; i<boardHeight; i++){
-    for (int j = 0; j<boardWidth; j++){
-      temp->layout[i][j] = 0;
-    }
-  }
-  return temp;
-}
-
-//deletes board struct
-board *deleteBoard(board *b){
-  free(b);
-  return NULL;
-}
-
-//prints out the board in text (for testing)
-void printBoard(board *b){
-  for (int i = 0; i<boardHeight; i++){
-    for (int j = 0; j<boardWidth; j++){
-      printf("%d ", b->layout[i][j]);
-    }
-    printf("\n");
-  }
-  printf("\n");
-}
-
-//resets all values on the board
-void clearBoard(board *b){
-  for (int i = 0; i<boardHeight; i++){
-    for (int j = 0; j<boardWidth; j++){
-      b->layout[i][j] = 0;
-    }
-  }
-}
-
 //creates instance of the fruit, default state is eaten
 fruit *fruitCreate(void){
   fruit *temp = malloc(sizeof(fruit));
@@ -191,16 +154,6 @@ void snakeMove(snake *p){
   }
 }
 
-//updates state of the board
-void updateBoard(board *b, snake *p, fruit *point){
-  clearBoard(b);
-  for (int k = 0; k<(p->bodyLength*2); k+=2){
-    b->layout[p->body[k]][p->body[k+1]] = 1;
-   
-  }
-  //if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
-}
-
 //checks for collision between two points
 int checkCollision(int y1, int x1, int y2, int x2){
   if ((y1 == y2) && (x1 == x2)) return 1;
@@ -224,32 +177,6 @@ int checkSelfCollision(snake *p){
   return 0;
 }
 
-//creates game for 1 player
-void initGame(board *b, snake *p, fruit *point){
-  p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-  b = boardCreate();
-  point = fruitCreate();
-  
-  clearBoard(b);
-  spawnFruit(point, p);
-  updateBoard(b, p, point);
-}
-
-//updates game after 1 increment
-void moveTurnGame(board *b, snake *p, fruit *point){
-  snakeMove(p);
-  checkCollisionFruit(point, p);
-  checkSelfCollision(p);
-  updateBoard(b, p, point);
-}
-
-//frees memory associated with game
-void endGame(board *b, snake *p, fruit *point){
-  point = deleteFruit(point);
-  b = deleteBoard(b);
-  p = deleteSnake(p);
-}
-
 //2p
 //spawns fruit in a 2 player scenario
 void spawnFruit2P(fruit *point, snake *p, snake *e){
@@ -260,17 +187,6 @@ void spawnFruit2P(fruit *point, snake *p, snake *e){
     }while (checkCollisionSnake(point->location[0], point->location[1], p)==1 && checkCollisionSnake(point->location[0], point->location[1], e)==1);
     point->eaten = 0;
   }
-}
-
-//paints the updated board for 2 players
-void updateBoard2P(board *b, snake *p, snake *e, fruit *point){
-  for (int k = 0; k<(p->bodyLength*2); k+=2){
-    b->layout[p->body[k]][p->body[k+1]] = 1;
-  }
-  for (int i = 0; i<(e->bodyLength*2); i+=2){
-    b->layout[e->body[i]][e->body[i+1]] = 3;
-  }
-  if (point->eaten==0) b->layout[point->location[0]][point->location[1]] = 2;
 }
 
 //checks if either snake has had a collision with the fruit and respawns fruit if necessary
@@ -316,35 +232,5 @@ int checkPlayerCollisions2P(snake *p, snake *e){
   }
   if (p->body[0] == e->body[0] && p->body[1] == e->body[1]) status = 3;
   return status;
-}
-
-//creates 2 player game
-void initGame2P(board *b, snake *p, snake *e,fruit *point){
-  p = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-  e = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
-  b = boardCreate();
-  point = fruitCreate();
-
-  clearBoard(b);
-  spawnFruit2P(point, p, e);
-  updateBoard2P(b, p, e, point);
-}
-
-//advances game by one increment for two players
-void moveTurnGame2P(board *b, snake *p, snake *e, fruit *point){
-  snakeMove(p);
-  snakeMove(e);
-  checkCollisionFruit2P(point, p, e);
-  checkPlayerCollisions2P(p, e);
-  clearBoard(b);
-  updateBoard2P(b, p, e, point);
-}
-
-//deletes 2 player game
-void endGame2P(board *b, snake *p, snake*e, fruit *point){
-  point = deleteFruit(point);
-  b = deleteBoard(b);
-  p = deleteSnake(p);
-  e = deleteSnake(e);
 }
 

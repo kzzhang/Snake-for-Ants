@@ -6,10 +6,12 @@
 #include "src/OrbitOledGrph.h"
 #include "src/delay.h"
 #include "game.h"
+#include "pathfinding.h"
 
 #include <stdlib.h>
 //int reset = 38;
 snake *player = NULL;
+snake *enemy = NULL;
 fruit *point = NULL;
 
 void setup() 
