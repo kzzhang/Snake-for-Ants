@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <Arduino.h>
 
-#define boardWidth 128
+#define boardWidth 115
 #define boardHeight 32
 
 //creates empty instance of the snake

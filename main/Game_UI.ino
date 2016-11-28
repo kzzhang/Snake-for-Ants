@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <time.h>
 
-int x=64;
-int y=16;
+
+char score = 0;
 
 static enum directions{
   left = 0,
@@ -17,14 +17,17 @@ static enum directions{
 static enum GamePages
 {
   Welcome       = 0,
-  SnakePage     = 1,
-  Score         = 2,
-  NumberOfPages = 3,
+  Modes         = 1,
+  SnakePage     = 2,
+  AIPage        = 3,
+  TwoPlayer     = 4,
+  Score         = 5,
+  NumberOfPages = 6,
 } gameUiPage = Welcome;
 
-const uint32_t numButtons = 2;
+const uint32_t numButtons = 4;
 
-const uint32_t Buttons[numButtons] = {  PD_2, PE_0  };
+const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6  };
 
 struct ButtonState
 { 
@@ -34,7 +37,7 @@ struct ButtonState
 
 static struct InputState
 {
-  struct ButtonState  buttons[2];
+  struct ButtonState  buttons[4];
 } gameInputState;
 
 void GameUIInit()
@@ -73,11 +76,41 @@ static void pageWelcome()
   {
     OrbitOledClearBuffer();
     OrbitOledClear();
-    gameUiPage = SnakePage;
+    gameUiPage = Modes;
   }
 }
 
-static void drawBoard(snake *player, fruit *point){
+static void pageModes()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("Normal Mode: B1");
+  
+  OrbitOledMoveTo(5, 10);
+  OrbitOledDrawString("2 plr Mode: B2");
+  OrbitOledMoveTo(5, 20);
+  OrbitOledDrawString("AI Mode: Sw1");
+
+  if(gameInputState.buttons[0].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage = SnakePage;
+  }
+  if(gameInputState.buttons[1].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage = TwoPlayer;
+  }
+  if(gameInputState.buttons[2].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage = AIPage;
+  }
+}
+
+static void drawBoard(snake *player, fruit *point, char score){
   OrbitOledClearBuffer();
   for (int k = 0; k<(player->bodyLength*2); k+=2){
     OrbitOledMoveTo(player->body[k+1], player->body[k]);
@@ -85,6 +118,10 @@ static void drawBoard(snake *player, fruit *point){
   }
   OrbitOledMoveTo(point->location[1], point->location[0]);
   OrbitOledDrawPixel();
+  char str[3];
+  sprintf(str, "%d", score);
+  OrbitOledMoveTo(120,0);
+  OrbitOledDrawString(str);
 }
 
 static void pageSnake(snake *player, fruit *point){
@@ -121,23 +158,72 @@ static void pageSnake(snake *player, fruit *point){
     }
   }
   snakeMove(player);
-  checkCollisionFruit(point, player);
+  if (checkCollisionFruit(point, player))score++;
   if (checkSelfCollision(player)){
-    delay(1000);
-    OrbitOledClearBuffer();
-    gameUiPage = Welcome;
     player = deleteSnake(player);
     point = deleteFruit(point);
-    pageWelcome();
+    delay(1000);
+    OrbitOledClearBuffer();
+    gameUiPage = Score;
+    
+
   }
-  drawBoard(player, point);
-  inputSetup();
-  DelayMs(75);
+  if(player !=NULL && point !=NULL){
+    drawBoard(player, point, score);
+    inputSetup();
+    DelayMs(75);
+  }
+  
+}
+static void AIMode()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("AI Mode");
+
+  if(gameInputState.buttons[0].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
+  }
+}
+static void TwoPlayerMode()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("Two Player");
+  
+
+  if(gameInputState.buttons[0].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
+  }
+}
+static void pageScore()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("Game Over");
+  
+  OrbitOledMoveTo(10, 15);
+  OrbitOledDrawString("Score:");
+  char str[3];
+  sprintf(str, "%d", score);
+  OrbitOledMoveTo(60, 15);
+  OrbitOledDrawString(str);
+  
+  if(gameInputState.buttons[0].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
+    //analogWrite(reset, LOW);
+  }
 }
 
 void GameUIupdate()
 {
-  if (!player){
+  if (player == NULL){
     player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
     addTail(player);
     addTail(player);
@@ -152,8 +238,21 @@ void GameUIupdate()
   case Welcome:
     pageWelcome();
     break;
+  case Modes:
+    pageModes();
+    break;
   case SnakePage:
+  
     pageSnake(player, point);
+    break;
+  case TwoPlayer:
+    TwoPlayerMode();
+    break;
+  case AIPage:
+    AIMode();
+    break;
+  case Score:
+    pageScore();
     break;
   }
   OrbitOledUpdate();

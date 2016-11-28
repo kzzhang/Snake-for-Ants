@@ -8,12 +8,14 @@
 #include "game.h"
 
 #include <stdlib.h>
-
+//int reset = 38;
 snake *player = NULL;
 fruit *point = NULL;
 
 void setup() 
 {
+ 
+  //pinMode(reset, OUTPUT);
   randomSeed(analogRead(0));
   WireInit();
   Serial.begin(9600);
