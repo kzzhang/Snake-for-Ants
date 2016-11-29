@@ -279,50 +279,50 @@ static void AIMode()
   else{
     drawBoard2P(player, enemy, point);
     inputSetup();
-    delay(calcDelay2P(player, enemy));
+    delay(calcDelay2P(player, enemy)+25);
   }
 }
 
 static void TwoPlayerMode()
 {
-//  if (player == NULL){
-//    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-////    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
-//    point = fruitCreate();
-//    spawnFruit2P(point, player, enemy);
-//  }
-//  if(gameInputState.buttons[0].pressed){
-//    switch (player->direction){
-//      case 'r':
-//        setSnakeDir(player, 'd');
-//        break;
-//      case 'l':
-//        setSnakeDir(player, 'u');
-//        break;
-//      case 'u':
-//        setSnakeDir(player, 'r');
-//        break;
-//      case 'd':
-//        setSnakeDir(player, 'l');
-//        break;
-//    }
-//  }
-//  if(gameInputState.buttons[1].pressed){
-//    switch (player->direction){
-//      case 'r':
-//        setSnakeDir(player, 'u');
-//        break;
-//      case 'l':
-//        setSnakeDir(player, 'd');
-//        break;
-//      case 'u':
-//        setSnakeDir(player, 'l');
-//        break;
-//      case 'd':
-//        setSnakeDir(player, 'r');
-//        break;
-//    }
-//  }
+  if (player == NULL){
+    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
+    point = fruitCreate();
+    spawnFruit2P(point, player, enemy);
+  }
+  if(gameInputState.buttons[0].pressed){
+    switch (player->direction){
+      case 'r':
+        setSnakeDir(player, 'd');
+        break;
+      case 'l':
+        setSnakeDir(player, 'u');
+        break;
+      case 'u':
+        setSnakeDir(player, 'r');
+        break;
+      case 'd':
+        setSnakeDir(player, 'l');
+        break;
+    }
+  }
+  if(gameInputState.buttons[1].pressed){
+    switch (player->direction){
+      case 'r':
+        setSnakeDir(player, 'u');
+        break;
+      case 'l':
+        setSnakeDir(player, 'd');
+        break;
+      case 'u':
+        setSnakeDir(player, 'l');
+        break;
+      case 'd':
+        setSnakeDir(player, 'r');
+        break;
+    }
+  }
   //p2
   /*
   if(gameInputState.buttons[0].pressed){
@@ -357,21 +357,21 @@ static void TwoPlayerMode()
         break;
     }
   }*/
-//  snakeMove(player);
-//  snakeMove(enemy);
-//  checkCollisionFruit2P(point, player, enemy);
-//  if (checkPlayerCollisions2P(player, enemy)){
-//    //differentiate types of collisions?
-//    delay(1000);
-//    OrbitOledClearBuffer();
-//    gameUiPage = Score;
-//    OrbitOledClear();
-//  }
-//  else{
-//    drawBoard2P(player, enemy, point);
-//    inputSetup();
-//    delay(calcDelay2P(player, enemy));
-//  }
+  snakeMove(player);
+  snakeMove(enemy);
+  checkCollisionFruit2P(point, player, enemy);
+  if (checkPlayerCollisions2P(player, enemy)){
+    //differentiate types of collisions?
+    delay(1000);
+    OrbitOledClearBuffer();
+    gameUiPage = Score;
+    OrbitOledClear();
+  }
+  else{
+    drawBoard2P(player, enemy, point);
+    inputSetup();
+    delay(calcDelay2P(player, enemy));
+  }
 }
 
 static void pageScore()

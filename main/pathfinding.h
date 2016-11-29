@@ -11,7 +11,7 @@ struct board{
   int currenty;
   int currentx;
   char prevMove;
-  int f;
+  int heuristic;
   int layout[boardHeight][boardWidth];
 };
 

@@ -24,10 +24,10 @@ void setup(){
   Serial.begin(9600);
   delay(100);
   GameUIInit();
+  Serial.println("begin");
 }
 
 void loop() 
 {
   GameUIupdate();
-  Serial.println("hello");
 }

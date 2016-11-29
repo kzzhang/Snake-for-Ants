@@ -28,12 +28,7 @@ void boardCopy(board *a, board b){
   a->currenty = b.currenty;
   a->currentx = b.currentx;
   a->prevMove = b.prevMove;
-  a->f = b.f;/*
-  for (int i = 0; i<boardHeight; i++){
-    for (int j = 0; j<boardWidth; j++){
-      a->layout[i][j] = b.layout[i][j];
-    }
-  }*/
+  a->heuristic = b.heuristic;
 }
 
 void updateBoard(struct board *b, snake p, snake e, fruit point){
@@ -55,14 +50,9 @@ void updateBoard(struct board *b, snake p, snake e, fruit point){
 }
 
 char AiFindDir(snake *p, snake *e, fruit point){
-  /*struct board currentState;
-  currentState.prevMove = e.direction;
-  currentState.f = findH(e.body[0], e.body[1], point.location[0], point.location[1]);*/
-
   snake *enemyCopy = snakeCopy(e);
   snake *playerCopy = snakeCopy(p);
 
-  struct board openStates[3];
   bool directions[4];
 
   int minh = 200;
@@ -119,51 +109,36 @@ char AiFindDir(snake *p, snake *e, fruit point){
       snakeMove(tempEnemy);
       struct board temp;
       updateBoard(&temp, *playerCopy, *tempEnemy, point);
-      if (temp.layout[temp.currenty][temp.currenty] != 1){
+      if (!checkPlayerCollisions2P(playerCopy, tempEnemy)){
         if (checkCollisionFruit(&point, tempEnemy)){
           char result = tempEnemy->direction;
           tempEnemy = deleteSnake(tempEnemy);
+          playerCopy = deleteSnake(playerCopy);
+          enemyCopy = deleteSnake(enemyCopy);
+          Serial.println("******************");
           return result;
         }
         else{
-          temp.f = findH(tempEnemy->body[0], tempEnemy->body[1], point.location[0], point.location[1]);
+          temp.heuristic = findH(tempEnemy->body[0], tempEnemy->body[1], point.location[0], point.location[1]);
           temp.prevMove = tempEnemy->direction;
 
-          if (temp.f <= minh){
-            minh = temp.f;
+          if (temp.heuristic <= minh){
+            minh = temp.heuristic;
             dir = temp.prevMove;
           }
-          
-          //boardCopy(&openStates[numStates], temp);
-          /*
-          openStates[numStates].currenty = temp.currenty;
-          openStates[numStates].currentx = temp.currentx;
-          openStates[numStates].prevMove = temp.prevMove;
-          Serial.println(openStates[numStates].prevMove);
-          
-          for (int i = 0; i<boardHeight; i++){
-            for (int j = 0; j<boardWidth; j++){
-              openStates[numStates].layout[i][j] = temp.layout[i][j];
-            }
-          }
-          openStates[numStates].f = temp.f;
-          Serial.println(openStates[numStates].f);
-          Serial.println(openStates[numStates].prevMove);
-          numStates+=1;*/
         }
       }
       tempEnemy = deleteSnake(tempEnemy);
+      Serial.print(temp.prevMove);
+      Serial.print(" - ");
+      Serial.print(temp.heuristic);
+      Serial.print("   ");
     }
   }
 
   playerCopy = deleteSnake(playerCopy);
   enemyCopy = deleteSnake(enemyCopy);
-  /*
-  int minIndex = 0;
-  for (int i = 0; i<numStates; i++){
-    if (openStates[i].f < openStates[minIndex].f) minIndex = i;
-  }
-  //if (numStates > 0) return openStates[minIndex].prevMove; */
+  Serial.println(dir);
   return dir;
 }
 
