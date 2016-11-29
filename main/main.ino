@@ -7,17 +7,18 @@
 #include "src/delay.h"
 #include "game.h"
 #include "pathfinding.h"
-
 #include <stdlib.h>
-//int reset = 38;
+
+
 snake *player = NULL;
 snake *enemy = NULL;
 fruit *point = NULL;
+uint32_t ui32EEPROMInit;
+uint32_t highscore[1];
 
-void setup() 
-{
- 
-  //pinMode(reset, OUTPUT);
+
+void setup(){
+  dataInit();
   randomSeed(analogRead(0));
   WireInit();
   Serial.begin(9600);
@@ -28,4 +29,5 @@ void setup()
 void loop() 
 {
   GameUIupdate();
+  Serial.println("hello");
 }

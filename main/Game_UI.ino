@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+int test = 0;
 
 static enum directions{
   left = 0,
@@ -18,7 +19,8 @@ static enum GamePages
   AIPage        = 3,
   TwoPlayer     = 4,
   Score         = 5,
-  NumberOfPages = 6,
+  HighScore     = 6,
+  NumberOfPages = 7,
 } gameUiPage = Welcome;
 
 const uint32_t numButtons = 4;
@@ -87,17 +89,21 @@ static void pageWelcome()
     OrbitOledClear();
     gameUiPage = Modes;
   }
+  
 }
 
 static void pageModes()
 {
   OrbitOledMoveTo(5, 0);
-  OrbitOledDrawString("Normal Mode: B1");
+  OrbitOledDrawString("1P:B1");
   
   OrbitOledMoveTo(5, 10);
-  OrbitOledDrawString("2 plr Mode: B2");
+  OrbitOledDrawString("2P:B2");
   OrbitOledMoveTo(5, 20);
-  OrbitOledDrawString("AI Mode: Sw1");
+  OrbitOledDrawString("AI:Sw1");
+  OrbitOledMoveTo(53, 0);
+  OrbitOledDrawString("HS:Sw2");
+  
 
   if(gameInputState.buttons[0].pressed)
   {
@@ -117,6 +123,14 @@ static void pageModes()
     OrbitOledClear();
     gameUiPage = AIPage;
   }
+  if(gameInputState.buttons[3].pressed)
+  {
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage = HighScore;
+  }
+  
+ 
 }
 
 static void drawBoard(snake *player, fruit *point){
@@ -129,7 +143,7 @@ static void drawBoard(snake *player, fruit *point){
   OrbitOledDrawPixel();
   char str[3];
   sprintf(str, "%d", (char)player->score);
-  OrbitOledMoveTo(120,0);
+  OrbitOledMoveTo(110,0);
   OrbitOledDrawString(str);
 }
 
@@ -147,7 +161,7 @@ static void drawBoard2P(snake *player, snake *enemy, fruit *point){
   OrbitOledDrawPixel();
   char str[3];
   sprintf(str, "%d", (char)player->score);
-  OrbitOledMoveTo(120,0);
+  OrbitOledMoveTo(110,0);
   OrbitOledDrawString(str);
 }
 
@@ -196,6 +210,12 @@ static void pageSnake(){
     OrbitOledClearBuffer();
     gameUiPage = Score;
     OrbitOledClear();
+    if(player->score >= highscore[0]){
+      highscore[0] = player->score;
+      EEPROMProgram(highscore, 0x400, sizeof(highscore));
+    }
+    
+    
   }
   else{
     drawBoard(player, point);
@@ -206,102 +226,102 @@ static void pageSnake(){
 
 static void AIMode()
 {
-  if (player == NULL){
-    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
-    point = fruitCreate();
-    spawnFruit2P(point, player, enemy);
-  }
-  if(gameInputState.buttons[0].pressed){
-    switch (player->direction){
-      case 'r':
-        setSnakeDir(player, 'd');
-        break;
-      case 'l':
-        setSnakeDir(player, 'u');
-        break;
-      case 'u':
-        setSnakeDir(player, 'r');
-        break;
-      case 'd':
-        setSnakeDir(player, 'l');
-        break;
-    }
-  }
-  if(gameInputState.buttons[1].pressed){
-    switch (player->direction){
-      case 'r':
-        setSnakeDir(player, 'u');
-        break;
-      case 'l':
-        setSnakeDir(player, 'd');
-        break;
-      case 'u':
-        setSnakeDir(player, 'l');
-        break;
-      case 'd':
-        setSnakeDir(player, 'r');
-        break;
-    }
-  }
-  //p2
-  setSnakeDir(enemy, AiFindDir(player, enemy, point));
-  snakeMove(player);
-  snakeMove(enemy);
-  checkCollisionFruit2P(point, player, enemy);
-  if (checkPlayerCollisions2P(player, enemy)){
-    //differentiate types of collisions?
-    delay(1000);
-    OrbitOledClearBuffer();
-    gameUiPage = Score;
-    OrbitOledClear();
-  }
-  else{
-    drawBoard2P(player, enemy, point);
-    inputSetup();
-    delay(calcDelay2P(player, enemy));
-  }
+//  if (player == NULL){
+//    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+////    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
+//    point = fruitCreate();
+//    spawnFruit2P(point, player, enemy);
+//  }
+//  if(gameInputState.buttons[0].pressed){
+//    switch (player->direction){
+//      case 'r':
+//        setSnakeDir(player, 'd');
+//        break;
+//      case 'l':
+//        setSnakeDir(player, 'u');
+//        break;
+//      case 'u':
+//        setSnakeDir(player, 'r');
+//        break;
+//      case 'd':
+//        setSnakeDir(player, 'l');
+//        break;
+//    }
+//  }
+//  if(gameInputState.buttons[1].pressed){
+//    switch (player->direction){
+//      case 'r':
+//        setSnakeDir(player, 'u');
+//        break;
+//      case 'l':
+//        setSnakeDir(player, 'd');
+//        break;
+//      case 'u':
+//        setSnakeDir(player, 'l');
+//        break;
+//      case 'd':
+//        setSnakeDir(player, 'r');
+//        break;
+//    }
+//  }
+//  //p2
+//  setSnakeDir(enemy, AiFindDir(player, enemy, point));
+//  snakeMove(player);
+//  snakeMove(enemy);
+//  checkCollisionFruit2P(point, player, enemy);
+//  if (checkPlayerCollisions2P(player, enemy)){
+//    //differentiate types of collisions?
+//    delay(1000);
+//    OrbitOledClearBuffer();
+//    gameUiPage = Score;
+//    OrbitOledClear();
+//  }
+//  else{
+//    drawBoard2P(player, enemy, point);
+//    inputSetup();
+//    delay(calcDelay2P(player, enemy));
+//  }
 }
 static void TwoPlayerMode()
 {
-  if (player == NULL){
-    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
-    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
-    point = fruitCreate();
-    spawnFruit2P(point, player, enemy);
-  }
-  if(gameInputState.buttons[0].pressed){
-    switch (player->direction){
-      case 'r':
-        setSnakeDir(player, 'd');
-        break;
-      case 'l':
-        setSnakeDir(player, 'u');
-        break;
-      case 'u':
-        setSnakeDir(player, 'r');
-        break;
-      case 'd':
-        setSnakeDir(player, 'l');
-        break;
-    }
-  }
-  if(gameInputState.buttons[1].pressed){
-    switch (player->direction){
-      case 'r':
-        setSnakeDir(player, 'u');
-        break;
-      case 'l':
-        setSnakeDir(player, 'd');
-        break;
-      case 'u':
-        setSnakeDir(player, 'l');
-        break;
-      case 'd':
-        setSnakeDir(player, 'r');
-        break;
-    }
-  }
+//  if (player == NULL){
+//    player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
+////    enemy = snakeCreate(boardHeight-1, boardWidth-3, boardHeight-1, boardWidth-2, boardHeight-1, boardWidth-1, 'l');
+//    point = fruitCreate();
+//    spawnFruit2P(point, player, enemy);
+//  }
+//  if(gameInputState.buttons[0].pressed){
+//    switch (player->direction){
+//      case 'r':
+//        setSnakeDir(player, 'd');
+//        break;
+//      case 'l':
+//        setSnakeDir(player, 'u');
+//        break;
+//      case 'u':
+//        setSnakeDir(player, 'r');
+//        break;
+//      case 'd':
+//        setSnakeDir(player, 'l');
+//        break;
+//    }
+//  }
+//  if(gameInputState.buttons[1].pressed){
+//    switch (player->direction){
+//      case 'r':
+//        setSnakeDir(player, 'u');
+//        break;
+//      case 'l':
+//        setSnakeDir(player, 'd');
+//        break;
+//      case 'u':
+//        setSnakeDir(player, 'l');
+//        break;
+//      case 'd':
+//        setSnakeDir(player, 'r');
+//        break;
+//    }
+//  }
   //p2
   /*
   if(gameInputState.buttons[0].pressed){
@@ -336,21 +356,21 @@ static void TwoPlayerMode()
         break;
     }
   }*/
-  snakeMove(player);
-  snakeMove(enemy);
-  checkCollisionFruit2P(point, player, enemy);
-  if (checkPlayerCollisions2P(player, enemy)){
-    //differentiate types of collisions?
-    delay(1000);
-    OrbitOledClearBuffer();
-    gameUiPage = Score;
-    OrbitOledClear();
-  }
-  else{
-    drawBoard2P(player, enemy, point);
-    inputSetup();
-    delay(calcDelay2P(player, enemy));
-  }
+//  snakeMove(player);
+//  snakeMove(enemy);
+//  checkCollisionFruit2P(point, player, enemy);
+//  if (checkPlayerCollisions2P(player, enemy)){
+//    //differentiate types of collisions?
+//    delay(1000);
+//    OrbitOledClearBuffer();
+//    gameUiPage = Score;
+//    OrbitOledClear();
+//  }
+//  else{
+//    drawBoard2P(player, enemy, point);
+//    inputSetup();
+//    delay(calcDelay2P(player, enemy));
+//  }
 }
 
 static void pageScore()
@@ -369,6 +389,34 @@ static void pageScore()
   {
     player = deleteSnake(player);
     point = deleteFruit(point);
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
+  }
+}
+
+static void pageHS()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("Your Highscores:");
+  if(highscore[0] != 0 && !(highscore[0]>0)){
+    highscore[0] = 0;
+    EEPROMProgram(highscore, 0x400, sizeof(highscore));
+  }
+  EEPROMRead(highscore, 0x400, sizeof(highscore));
+  char str[3];
+  sprintf(str, "%d", highscore[0] );
+  OrbitOledMoveTo(5, 15);
+  OrbitOledDrawString("1P:");
+  OrbitOledMoveTo(30, 15);
+  OrbitOledDrawString(str);
+  OrbitOledMoveTo(60, 15);
+  OrbitOledDrawString("AI:");
+  
+  
+  if(gameInputState.buttons[0].pressed)
+  {
+    
     OrbitOledClearBuffer();
     OrbitOledClear();
     gameUiPage= Welcome;
@@ -397,6 +445,9 @@ void GameUIupdate()
     break;
   case Score:
     pageScore();
+    break;
+  case HighScore:
+    pageHS();
     break;
   }
   OrbitOledUpdate();
