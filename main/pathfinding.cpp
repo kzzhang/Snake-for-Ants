@@ -2,63 +2,37 @@
 #include <cmath>
 #include <Arduino.h>
 #include <cstdlib>
-//#include <cstdio>
 
 using namespace std;
 
+//custom min function (b/c min() in <algorithm> is not included in Energia)
 int lowest(int a, int b){
   if (a >= b) return b;
   else return a;
 }
 
 //finds heuristic distance based on manhattan convention
-int findH(int y1, int x1, int y2, int x2){
-  int changey, changex, h;
+int findHeuristic(int y1, int x1, int y2, int x2){
+  int changey, changex;
   if (y1 >= y2) changey = lowest(y1-y2, boardHeight-y1+y2);
   else changey = lowest(y2-y1, boardHeight-y2+y1);
   if (x1 >= x2) changex = lowest(x1-x2, boardWidth-x1+x2);
   else changex = lowest(x2-x1, boardWidth-x2+x1);
 
-  h = changey+changex;
-  //Serial.println(h);
-  return h;
+  return changey + changex;
 }
 
-void boardCopy(board *a, board b){
-  a->currenty = b.currenty;
-  a->currentx = b.currentx;
-  a->prevMove = b.prevMove;
-  a->heuristic = b.heuristic;
-}
-
-void updateBoard(struct board *b, snake p, snake e, fruit point){
-  for (int i = 0; i<boardHeight; i++){
-    for (int j = 0; j<boardWidth; j++){
-      b->layout[i][j] = 0;
-    }
-  }
-  b->currenty = e.body[0];
-  b->currentx = e.body[1];
-  b->layout[b->currenty][b->currentx] = 2;
-  for (int k = 0; k<(p.bodyLength*2); k+=2){
-    b->layout[p.body[k]][p.body[k+1]] = 1;
-  }
-  for (int k = 2; k<(e.bodyLength*2); k+=2){
-    b->layout[e.body[k]][e.body[k+1]] = 1;
-  }
-  b->layout[point.location[0]][point.location[1]] = 3;
-}
-
+//returns output direction for AI
 char AiFindDir(snake *p, snake *e, fruit point){
   snake *enemyCopy = snakeCopy(e);
   snake *playerCopy = snakeCopy(p);
 
   bool directions[4];
-
-  int minh = 200;
+  int minheuristic = 200;
   char dir = enemyCopy->direction;
 
   //0 - up, 1 - right, 2 - down, 3 - left
+  //finds possible movement options
   switch (enemyCopy->direction){
     case 'u':
       directions[0] = true;
@@ -87,7 +61,7 @@ char AiFindDir(snake *p, snake *e, fruit point){
   }
   
   snakeMove(playerCopy);
-  int numStates = 0;
+  //checks if possible moves are valid (assuming forward movement of player) and checks how good each valid move is
   for (int i = 0; i<4; i++){
     if (directions[i]){
       snake *tempEnemy = snakeCopy(enemyCopy);
@@ -107,38 +81,59 @@ char AiFindDir(snake *p, snake *e, fruit point){
       }
      
       snakeMove(tempEnemy);
-      struct board temp;
-      updateBoard(&temp, *playerCopy, *tempEnemy, point);
+      //find best valid move
       if (!checkPlayerCollisions2P(playerCopy, tempEnemy)){
         if (checkCollisionFruit(&point, tempEnemy)){
           char result = tempEnemy->direction;
           tempEnemy = deleteSnake(tempEnemy);
           playerCopy = deleteSnake(playerCopy);
           enemyCopy = deleteSnake(enemyCopy);
-          Serial.println("******************");
           return result;
         }
         else{
-          temp.heuristic = findH(tempEnemy->body[0], tempEnemy->body[1], point.location[0], point.location[1]);
-          temp.prevMove = tempEnemy->direction;
-
-          if (temp.heuristic <= minh){
-            minh = temp.heuristic;
-            dir = temp.prevMove;
+          int heuristic = findHeuristic(tempEnemy->body[0], tempEnemy->body[1], point.location[0], point.location[1]);
+          if (heuristic <= minheuristic){
+            minheuristic = heuristic;
+            dir = tempEnemy->direction;
           }
         }
       }
       tempEnemy = deleteSnake(tempEnemy);
-      Serial.print(temp.prevMove);
-      Serial.print(" - ");
-      Serial.print(temp.heuristic);
-      Serial.print("   ");
     }
   }
-
   playerCopy = deleteSnake(playerCopy);
   enemyCopy = deleteSnake(enemyCopy);
-  Serial.println(dir);
+
   return dir;
 }
+
+//Board structure functions used for testing purposes
+//Originally, I had also looked into implementing a basic A* algorithm, in which boards would represent states
+//However, the TIVA board lacks the memory to support such an algorithm which such a large board (and thus number of cases)
+/*
+void boardCopy(board *a, board b){
+  a->currenty = b.currenty;
+  a->currentx = b.currentx;
+  a->prevMove = b.prevMove;
+  a->heuristic = b.heuristic;
+}
+
+void updateBoard(struct board *b, snake p, snake e, fruit point){
+  for (int i = 0; i<boardHeight; i++){
+    for (int j = 0; j<boardWidth; j++){
+      b->layout[i][j] = 0;
+    }
+  }
+  b->currenty = e.body[0];
+  b->currentx = e.body[1];
+  b->layout[b->currenty][b->currentx] = 2;
+  for (int k = 0; k<(p.bodyLength*2); k+=2){
+    b->layout[p.body[k]][p.body[k+1]] = 1;
+  }
+  for (int k = 2; k<(e.bodyLength*2); k+=2){\
+    b->layout[e.body[k]][e.body[k+1]] = 1;
+  }
+  b->layout[point.location[0]][point.location[1]] = 3;
+}
+*/
 

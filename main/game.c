@@ -154,6 +154,7 @@ void snakeMove(snake *p){
   }
 }
 
+//creates new copy of a snake
 snake *snakeCopy(snake *p){
   snake *temp = malloc(sizeof(snake));
   temp->direction = p->direction;
