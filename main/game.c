@@ -154,6 +154,18 @@ void snakeMove(snake *p){
   }
 }
 
+snake *snakeCopy(snake *p){
+  snake *temp = malloc(sizeof(snake));
+  temp->direction = p->direction;
+  temp->bodyLength = p->bodyLength;
+  temp->score = p->score;
+  temp->body = malloc(temp->bodyLength*sizeof(int)*2);
+  for (int k = 0; k<(temp->bodyLength*2); k++){
+    temp->body[k] = p->body[k];
+  }
+  return temp;
+}
+
 //checks for collision between two points
 int checkCollision(int y1, int x1, int y2, int x2){
   if ((y1 == y2) && (x1 == x2)) return 1;

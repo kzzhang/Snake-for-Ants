@@ -31,6 +31,7 @@ void spawnFruit(fruit *point, snake *p);
 int checkCollisionFruit(fruit *point, snake *p);
 void addTail(snake *p);
 void snakeMove(snake *p);
+snake *snakeCopy(snake *p);
 int checkCollision(int y1, int x1, int y2, int x2);
 int checkCollisionSnake(int y, int x, snake *p);
 int checkSelfCollision(snake *p);
