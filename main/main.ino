@@ -14,20 +14,26 @@ snake *player = NULL;
 snake *enemy = NULL;
 fruit *point = NULL;
 uint32_t ui32EEPROMInit;
-uint32_t highscore[1];
-
+uint32_t highscore[2];
+int switchOne = 1;
+int switchTwo = 1;
 
 void setup(){
+  //initialize EEPROM
   dataInit();
+  //generate random seed
   randomSeed(analogRead(0));
+  //initiate wire
   WireInit();
   Serial.begin(9600);
   delay(100);
+  //initiate UI
   GameUIInit();
   Serial.println("begin");
 }
 
 void loop() 
 {
+  
   GameUIupdate();
 }
