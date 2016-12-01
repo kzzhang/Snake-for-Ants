@@ -3,29 +3,28 @@
 #include <stdlib.h>
 #include <time.h>
 
-
+int highscore1plr;
+int highscoreAI;
 int showScore = 0;
 
 //game pages list
 static enum GamePages
 {
-  Welcome        =  0,
-  Modes          =  1,
-  SnakePage      =  2,
-  AIPage         =  3,
-  TwoPlayer      =  4,
-  TwoPlayerScore =  5,
-  AIkilled       =  6,
-  Score          =  7,
-  HighScore      =  8,
-  HighScoreAI    =  9,
-  Name           =  10,
-  NumberOfPages  =  11,
+  Welcome       = 0,
+  Modes         = 1,
+  SnakePage     = 2,
+  AIPage        = 3,
+  TwoPlayer     = 4,
+  TwoPlayerScore= 5,
+  AIkilled      = 6,
+  Score         = 7,
+  HighScore     = 8,
+  NumberOfPages = 9,
 } gameUiPage = Welcome;
 
 //Initlializations
-const uint32_t numButtons = 5;
-const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6, PUSH2  };
+const uint32_t numButtons = 4;
+const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6  };
 
 struct ButtonState
 { 
@@ -35,7 +34,7 @@ struct ButtonState
 
 static struct InputState
 {
-  struct ButtonState buttons[5];
+  struct ButtonState  buttons[4];
 } gameInputState;
 
 void GameUIInit()
@@ -90,6 +89,7 @@ static void pageWelcome()
     OrbitOledClear();
     gameUiPage = Modes;
   }
+  
 }
 
 //mode page
@@ -129,6 +129,8 @@ static void pageModes()
     OrbitOledClear();
     gameUiPage = HighScore;
   }
+  
+ 
 }
 
 //draws the board for one player mode
@@ -217,6 +219,12 @@ static void pageSnake(){
     OrbitOledClearBuffer();
     gameUiPage = Score;
     OrbitOledClear();
+    //check if highscore update needed
+    if(player->score >= highscore[0]){
+      highscore[0] = player->score;
+      highscore[1] = highscoreAI;
+      EEPROMProgram(highscore, 0x400, sizeof(highscore));
+    }
   }
   //else display to screen
   else{
@@ -295,6 +303,12 @@ static void AIMode()
     drawBoard2P(player, enemy, point);
     inputSetup();
     delay(calcDelay2P(player, enemy)+25);
+  }
+  //check if highscore update needed
+  if(player->score >= highscore[1]){
+      highscore[1] = player->score;
+      highscore[0] = highscore1plr;
+      EEPROMProgram(highscore, 0x400, sizeof(highscore));
   }
 }
 
@@ -414,28 +428,11 @@ static void pageScore()
   
   if(gameInputState.buttons[0].pressed)
   {
-    //check if highscore update needed
-    if(!enemy){
-        if(player->score >= highscore1[0] || player->score >= highscore2[0] || player->score >= highscore3[0] ){
-          OrbitOledClearBuffer();
-          OrbitOledClear();
-          gameUiPage= Name;
-      }
-    }
-    else if (enemy){
-      if(player->score >= highscoreAI1[0] || player->score >= highscoreAI2[0] || player->score >= highscoreAI3[0] ){
-        OrbitOledClearBuffer();
-        OrbitOledClear();
-        gameUiPage= Name;
-      }
-    }
-    else{
-      player = deleteSnake(player);
-      point = deleteFruit(point);
-      OrbitOledClearBuffer();
-      OrbitOledClear();
-      gameUiPage= Welcome;
-    }
+    player = deleteSnake(player);
+    point = deleteFruit(point);
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
   }
 }
 
@@ -454,18 +451,11 @@ static void killedAI()
   
   if(gameInputState.buttons[0].pressed)
   {
-    if(player->score >= highscoreAI1[0] || player->score >= highscoreAI2[0] || player->score >= highscoreAI3[0] ){
-        OrbitOledClearBuffer();
-        OrbitOledClear();
-        gameUiPage= Name;
-    }
-    else{
-      player = deleteSnake(player);
-      point = deleteFruit(point);
-      OrbitOledClearBuffer();
-      OrbitOledClear();
-      gameUiPage= Welcome;
-    }
+    player = deleteSnake(player);
+    point = deleteFruit(point);
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
   }
 }
 
@@ -489,114 +479,28 @@ static void TwoPlayerResults(){
 //Highscores page
 static void pageHS()
 {
-  OrbitOledClearBuffer();
   OrbitOledMoveTo(5, 0);
-  OrbitOledDrawString("Highscores:");
-  EEPROMRead(firstPlace, 400, sizeof(firstPlace));
-  EEPROMRead(secondPlace, 408, sizeof(secondPlace));
-  EEPROMRead(thirdPlace, 416, sizeof(thirdPlace));
-  EEPROMProgram(highscore1, 800, sizeof(highscore1));
-  EEPROMProgram(highscore2, 804, sizeof(highscore2));
-  EEPROMProgram(highscore3, 808, sizeof(highscore3));
-  //prints out the three top highscores
-  if(highscore1[0] > 0){
-    for(int i = 0; i< 5; i++){
-        if (firstPlace[i] >= 65 && firstPlace[i] <= 90) {
-          OrbitOledMoveTo(5+(i*7), 10);
-          OrbitOledDrawChar((char)firstPlace[i]);
-        }
-    }
-    OrbitOledMoveTo(80, 10);
-    char str[3];
-    sprintf(str, "%d", highscore1[0] );
-    OrbitOledDrawString(str);
+  OrbitOledDrawString("Your Highscores:");
+  //makes sure EEPROM is not initialized with unitialized data
+  if((highscore[0] != 0 && !(highscore[0]>0)) || highscore[0] == -1 ||( highscore[1] != 0 && !(highscore[1] >0)) || highscore[1] == -1){
+    highscore[0] = 0;
+    highscore[1] = 0;
+    EEPROMProgram(highscore, 0x400, sizeof(highscore));
   }
-  if(highscore2[0] > 0){
-    for(int i = 0; i< 5; i++){
-        if (secondPlace[i] >= 65 && secondPlace[i] <= 90) {
-          OrbitOledMoveTo(5+i*7, 20);
-          OrbitOledDrawChar((char)secondPlace[i]);
-        }
-    }
-    OrbitOledMoveTo(80, 20);
-    char str[3];
-    sprintf(str, "%d", highscore2[0] );
-    OrbitOledDrawString(str);
-  }
-  if(highscore3[0] > 0){
-    OrbitOledMoveTo(5, 20);
-    for(int i = 0; i< 5; i++){
-        if (thirdPlace[i] >= 65 && thirdPlace[i] <= 90) {
-          OrbitOledDrawChar((char)thirdPlace[i]);
-          OrbitOledMoveTo(5+i*7, 30);
-        }
-    }
-    OrbitOledMoveTo(80, 30);
-    char str[3];
-    sprintf(str, "%d", highscore3[0] );
-    OrbitOledDrawString(str);
-  }
-  
-  if(gameInputState.buttons[0].pressed)
-  {
-    OrbitOledClearBuffer();
-    OrbitOledClear();
-    gameUiPage= HighScoreAI;
-  }
-}
-
-
-//AI Highscores page
-static void pageHSAI()
-{
-  OrbitOledMoveTo(5, 0);
-  OrbitOledDrawString("AI Highscores:");
-  EEPROMRead(firstPlaceAI, 424, sizeof(firstPlaceAI));
-  EEPROMRead(secondPlaceAI, 432, sizeof(secondPlaceAI));
-  EEPROMRead(thirdPlaceAI, 440, sizeof(thirdPlaceAI));
-  EEPROMProgram(highscoreAI1, 812, sizeof(highscoreAI1));
-  EEPROMProgram(highscoreAI2, 816, sizeof(highscoreAI2));
-  EEPROMProgram(highscoreAI3, 820, sizeof(highscoreAI3));
-  //prints out the three top highscores
-  if(highscoreAI1[0]>0){
-    OrbitOledMoveTo(5, 10);
-    for(int i = 0; i< 5; i++){
-        if (firstPlaceAI[i] >= 65 && firstPlaceAI[i] <= 90) {
-          OrbitOledDrawChar((char)firstPlaceAI[i]);
-          OrbitOledMoveTo(5+i*7, 10);
-        }
-    }
-    OrbitOledMoveTo(80, 10);
-    char str[3];
-    sprintf(str, "%d", highscoreAI1[0] );
-    OrbitOledDrawString(str);
-  }
-  if(highscoreAI2[0]>0){
-    OrbitOledMoveTo(5, 20);
-    for(int i = 0; i< 5; i++){
-        if (secondPlaceAI[i] >= 65 && secondPlaceAI[i] <= 90) {
-          OrbitOledDrawChar((char)secondPlaceAI[i]);
-          OrbitOledMoveTo(5+i*7, 15);
-        }
-    }
-    OrbitOledMoveTo(80, 20);
-    char str[3];
-    sprintf(str, "%d", highscoreAI2[0] );
-    OrbitOledDrawString(str);
-  }
-  if(highscoreAI3[0]>0){
-    OrbitOledMoveTo(5, 30);
-    for(int i = 0; i< 5; i++){
-        if (thirdPlaceAI[i] >= 65 && thirdPlaceAI[i] < 90) {
-          OrbitOledDrawChar((char)thirdPlaceAI[i]);
-          OrbitOledMoveTo(5+i*7, 20);
-        }
-    }
-    OrbitOledMoveTo(80, 30);
-    char str[3];
-    sprintf(str, "%d", highscoreAI3[0] );
-    OrbitOledDrawString(str);
-  }
+  EEPROMRead(highscore, 0x400, sizeof(highscore));
+  //prints out the two highscores (1plr and AI)
+  char str[3];
+  sprintf(str, "%d", highscore[0] );
+  OrbitOledMoveTo(5, 15);
+  OrbitOledDrawString("1P:");
+  OrbitOledMoveTo(30, 15);
+  OrbitOledDrawString(str);
+  OrbitOledMoveTo(60, 15);
+  OrbitOledDrawString("AI:");
+  OrbitOledMoveTo(85, 15);
+  char str2[3];
+  sprintf(str2, "%d", highscore[1] );
+  OrbitOledDrawString(str2);
   
   if(gameInputState.buttons[0].pressed)
   {
@@ -604,178 +508,14 @@ static void pageHSAI()
     OrbitOledClear();
     gameUiPage= Welcome;
   }
-  if(gameInputState.buttons[1].pressed)
-  {
-    //highscores reset
-    resetMem();
-  }
-}
-
-int blinkState(void){
-  if ((millis()/500)%2) return 1;
-  else return 0;
-}
-
-void resetArray(uint32_t a[], int n){
-  for (int i = 1; i<n; i++) a[i] = 0;
-  a[0] = 1;
-}
-
-
-
-//page to type in name for highscores
-static void playerName()
-{
-  int current = -1;
-  switchOne = digitalRead(Buttons[2]);
-  switchTwo = digitalRead(Buttons[3]);
-  OrbitOledClearBuffer();
-  OrbitOledMoveTo(0, 0);
-  OrbitOledDrawString("HiScore! Name:");
-
-  for (int i = 0; i<5; i++){
-    if (name[i] != 0) current++;
-    if (name[i] >= 65 && name[i] <= 90){
-      OrbitOledMoveTo(15+(i*12), boardHeight-13);
-      OrbitOledDrawChar((char)name[i]);
-    }
-  }
-  
-  for (int i=0; i<5; i++){
-    for (int j=0; j<8; j++){
-      OrbitOledMoveTo(15+(i*12)+j, boardHeight-5);
-      OrbitOledDrawPixel();
-    }
-  }
-  
-  if (blinkState()){
-    OrbitOledMoveTo(15+(current*12)+3, boardHeight-2);
-    OrbitOledDrawPixel();   
-  }
-
-  if (gameInputState.buttons[0].pressed){
-    if (name[current] < 65 || name[current] >= 90) name[current] = 65;
-    else name[current]++;
-  }
-  if (gameInputState.buttons[1].pressed){
-    if (current < 4) name[current+1] = 65;
-  }
-  
-  if(gameInputState.buttons[4].pressed){
-    //one player highscore save name and score to memory
-    if(!enemy){
-      if(player->score > highscore1[0]){
-        highscore3[0] = highscore2[0];
-        highscore2[0] = highscore1[0];
-        highscore1[0] = player ->score;
-        
-        for(int i = 0; i< 5; i++){
-          thirdPlace[i] = secondPlace[i];
-        }
-        for(int i = 0; i< 5; i++){
-          secondPlace[i] = firstPlace[i];
-        }
-        for(int i = 0; i< 5; i++){
-           firstPlace[i] = name[i];
-        }
-        EEPROMProgram(firstPlace, 400, sizeof(firstPlace));
-        EEPROMProgram(secondPlace, 408, sizeof(secondPlace));
-        EEPROMProgram(thirdPlace,416, sizeof(thirdPlace));
-        EEPROMProgram(highscore1, 800, sizeof(highscore1));
-        EEPROMProgram(highscore2, 804, sizeof(highscore2));
-        EEPROMProgram(highscore3, 808, sizeof(highscore3));
-      }
-      else if (player->score > highscore2[0]){
-        highscore3[0] = highscore2[0];
-        highscore2[0] = player -> score;
-        for(int i = 0; i< 5; i++){
-            thirdPlace[i] = secondPlace[i];
-        }
-        for(int i = 0; i< 5; i++){
-            secondPlace[i] = name[i];
-        }
-        EEPROMProgram(secondPlace, 408, sizeof(secondPlace));
-        EEPROMProgram(thirdPlace, 416, sizeof(thirdPlace));
-        EEPROMProgram(highscore2, 804, sizeof(highscore2));
-        EEPROMProgram(highscore3, 808, sizeof(highscore3));
-      }
-      else if (player->score > highscore3[0]) {
-        highscore3[0] = player->score;
-        for(int i = 0; i< 5; i++){
-            thirdPlace[i] = name[i];
-        }
-        EEPROMProgram(thirdPlace, 416, sizeof(thirdPlace));
-        EEPROMProgram(highscore3, 808, sizeof(highscore3));
-      }
-    }
-    
-     //AI highscore save name and score to memory
-     if(enemy){
-      if(player->score > highscoreAI1[0]){
-        highscoreAI3[0] = highscore2[0];
-        highscoreAI2[0] = highscore1[0];
-        highscoreAI1[0] = player ->score;
-        for(int i = 0; i< 5; i++){
-          thirdPlaceAI[i] = secondPlaceAI[i];
-        }
-        for(int i = 0; i< 5; i++){
-          secondPlaceAI[i] = firstPlaceAI[i];
-        }
-        for(int i = 0; i< 5; i++){
-          firstPlaceAI[i] = name[i];
-        }
-        EEPROMProgram(firstPlaceAI, 424, sizeof(firstPlaceAI));
-        EEPROMProgram(secondPlaceAI, 432, sizeof(secondPlaceAI));
-        EEPROMProgram(thirdPlaceAI, 440, sizeof(thirdPlaceAI));
-        EEPROMProgram(highscoreAI1, 812, sizeof(highscoreAI1));
-        EEPROMProgram(highscoreAI2, 816, sizeof(highscoreAI1));
-        EEPROMProgram(highscoreAI3, 820, sizeof(highscoreAI1));
-      }
-      else if (player->score > highscoreAI2[0]){
-        highscoreAI3[0] = highscoreAI2[0];
-        highscoreAI2[0] = player -> score;
-        for(int i = 0; i< 5; i++){
-          thirdPlaceAI[i] = secondPlaceAI[i];
-        }
-        for(int i = 0; i< 5; i++){
-           secondPlaceAI[i] = name[i];
-        }
-        EEPROMProgram(secondPlaceAI, 432, sizeof(secondPlaceAI));
-        EEPROMProgram(thirdPlaceAI, 440, sizeof(thirdPlaceAI));
-        EEPROMProgram(highscoreAI2, 816, sizeof(highscoreAI2));
-        EEPROMProgram(highscoreAI3, 820, sizeof(highscoreAI1));
-      }
-      else if(player->score > highscoreAI3[0]) {
-        highscoreAI3[0] = player->score;
-        for(int i = 0; i< 5; i++){
-           thirdPlaceAI[i] = name[i];
-        }
-        EEPROMProgram(thirdPlaceAI, 440, sizeof(thirdPlaceAI));
-        EEPROMProgram(highscoreAI3, 820, sizeof(highscoreAI3));
-      }
-    }
-    
-    //reset globals
-    resetArray(name, 5);
-    if(!enemy){
-      gameUiPage= HighScore;
-      player = deleteSnake(player);
-      point = deleteFruit(point);
-      OrbitOledClearBuffer();
-      OrbitOledClear();
-    }
-    else if(enemy){
-      gameUiPage= HighScoreAI;
-      enemy = deleteSnake(enemy);
-      OrbitOledClearBuffer();
-      OrbitOledClear();
-    }
-  }
 }
 
 //determines what gamepage to go to
 void GameUIupdate()
 {
+  highscore1plr = highscore[0];
+  highscoreAI = highscore[1];
+  EEPROMRead(highscore, 0x400, sizeof(highscore));
   inputSetup();
   
   switch(gameUiPage)
@@ -806,12 +546,6 @@ void GameUIupdate()
     break;
   case HighScore:
     pageHS();
-    break;
-  case HighScoreAI:
-    pageHSAI();
-    break;
-  case Name:
-    playerName();
     break;
   }
   OrbitOledUpdate();
