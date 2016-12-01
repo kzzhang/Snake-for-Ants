@@ -16,9 +16,10 @@ static enum GamePages
   AIPage        = 3,
   TwoPlayer     = 4,
   TwoPlayerScore= 5,
-  Score         = 6,
-  HighScore     = 7,
-  NumberOfPages = 8,
+  AIkilled      = 6,
+  Score         = 7,
+  HighScore     = 8,
+  NumberOfPages = 9,
 } gameUiPage = Welcome;
 
 //Initlializations
@@ -289,7 +290,7 @@ static void AIMode()
     player->score *= 2;
     delay(1000);
     OrbitOledClearBuffer();
-    gameUiPage = Score;
+    gameUiPage = AIkilled;
     OrbitOledClear();
   }
   if (checkPlayerCollisions2P(player, enemy)){
@@ -435,6 +436,29 @@ static void pageScore()
   }
 }
 
+//scores if AI killed (score doubles)
+static void killedAI()
+{
+  OrbitOledMoveTo(5, 0);
+  OrbitOledDrawString("You killed AI!");
+  
+  OrbitOledMoveTo(10, 15);
+  OrbitOledDrawString("Score:");
+  char str[3];
+  sprintf(str, "%d", player->score);
+  OrbitOledMoveTo(60, 15);
+  OrbitOledDrawString(str);
+  
+  if(gameInputState.buttons[0].pressed)
+  {
+    player = deleteSnake(player);
+    point = deleteFruit(point);
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
+  }
+}
+
 //results page for 2plr
 static void TwoPlayerResults(){
   OrbitOledMoveTo(45, 10);
@@ -458,7 +482,7 @@ static void pageHS()
   OrbitOledMoveTo(5, 0);
   OrbitOledDrawString("Your Highscores:");
   //makes sure EEPROM is not initialized with unitialized data
-  if(highscore[0] != 0 && !(highscore[0]>0) && highscore[1] != 0 && !(highscore[1] >0)){
+  if((highscore[0] != 0 && !(highscore[0]>0)) || highscore[0] == -1 ||( highscore[1] != 0 && !(highscore[1] >0)) || highscore[1] == -1){
     highscore[0] = 0;
     highscore[1] = 0;
     EEPROMProgram(highscore, 0x400, sizeof(highscore));
@@ -491,6 +515,7 @@ void GameUIupdate()
 {
   highscore1plr = highscore[0];
   highscoreAI = highscore[1];
+  EEPROMRead(highscore, 0x400, sizeof(highscore));
   inputSetup();
   
   switch(gameUiPage)
@@ -512,6 +537,9 @@ void GameUIupdate()
     break;
   case AIPage:
     AIMode();
+    break;
+  case AIkilled:
+    killedAI();
     break;
   case Score:
     pageScore();
