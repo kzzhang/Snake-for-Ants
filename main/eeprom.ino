@@ -25,6 +25,10 @@ void resetMem(){
   highscoreAI[0] = 0;
   firstPlace[0] = 0;
   firstPlaceAI[0] = 0;
+  EEPROMProgram(firstPlace, 400, sizeof(firstPlace));
+  EEPROMProgram(highscore, 800, sizeof(highscore));
+  EEPROMProgram(firstPlace, 440, sizeof(firstPlace));
+  EEPROMProgram(highscore, 840, sizeof(highscore));
 }
 
 
