@@ -9,10 +9,11 @@
 #include "pathfinding.h"
 #include <stdlib.h>
 
-
+//globals representing snakes and fruit used for the game
 snake *player = NULL;
 snake *enemy = NULL;
 fruit *point = NULL;
+
 uint32_t ui32EEPROMInit;
 uint32_t highscore[2];
 int switchOne = 1;
@@ -34,6 +35,6 @@ void setup(){
 
 void loop() 
 {
-  
+  //updates screen based on what's happening
   GameUIupdate();
 }

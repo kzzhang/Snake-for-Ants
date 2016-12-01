@@ -6,6 +6,7 @@
 int highscore1plr;
 int highscoreAI;
 int showScore = 0;
+
 //game pages list
 static enum GamePages
 {
@@ -20,10 +21,8 @@ static enum GamePages
   NumberOfPages = 8,
 } gameUiPage = Welcome;
 
-
 //Initlializations
 const uint32_t numButtons = 4;
-
 const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6  };
 
 struct ButtonState
@@ -36,7 +35,6 @@ static struct InputState
 {
   struct ButtonState  buttons[4];
 } gameInputState;
-
 
 void GameUIInit()
 {
@@ -106,7 +104,6 @@ static void pageModes()
   OrbitOledMoveTo(53, 0);
   OrbitOledDrawString("HS:Sw2");
   
-
   if(gameInputState.buttons[0].pressed)
   {
     OrbitOledClearBuffer();
@@ -162,26 +159,25 @@ static void drawBoard2P(snake *player, snake *enemy, fruit *point){
     OrbitOledDrawPixel();
     OrbitOledMoveTo(point->location[1], point->location[0]);
   OrbitOledDrawPixel();
-  if(showScore){
+  if (showScore){
     char str[3];
     sprintf(str, "%d", (char)player->score);
     OrbitOledMoveTo(110,0);
     OrbitOledDrawString(str);
+    }
   }
-  
-  
-  }
-  
 }
 
 //one player mode direction and fruit function
 static void pageSnake(){
+  //initialize snake if uninitialized 
   if (player == NULL){
     player = snakeCreate(0, 2, 0, 1, 0, 0, 'r');
     point = fruitCreate();
     spawnFruit(point, player);
   }
-  if(gameInputState.buttons[0].pressed){
+  //change p1 direction if button pressed
+  if (gameInputState.buttons[0].pressed){
     switch (player->direction){
       case 'r':
         setSnakeDir(player, 'd');
@@ -197,7 +193,7 @@ static void pageSnake(){
         break;
     }
   }
-  if(gameInputState.buttons[1].pressed){
+  if (gameInputState.buttons[1].pressed){
     switch (player->direction){
       case 'r':
         setSnakeDir(player, 'u');
@@ -215,6 +211,7 @@ static void pageSnake(){
   }
   snakeMove(player);
   checkCollisionFruit(point, player);
+  
   //check gameover
   if (checkSelfCollision(player)){
     delay(1000);
@@ -223,14 +220,12 @@ static void pageSnake(){
     OrbitOledClear();
     //check if highscore update needed
     if(player->score >= highscore[0]){
- 
       highscore[0] = player->score;
       highscore[1] = highscoreAI;
       EEPROMProgram(highscore, 0x400, sizeof(highscore));
     }
-    
-    
   }
+  //else display to screen
   else{
     drawBoard(player, point);
     inputSetup();
@@ -310,7 +305,6 @@ static void AIMode()
   }
   //check if highscore update needed
   if(player->score >= highscore[1]){
-   
       highscore[1] = player->score;
       highscore[0] = highscore1plr;
       EEPROMProgram(highscore, 0x400, sizeof(highscore));
@@ -381,7 +375,6 @@ static void TwoPlayerMode()
         break;
     }
   }
- 
   if(switchTwo == digitalRead(Buttons[3])){
     if (switchTwo == 0) switchTwo =1;
     else switchTwo = 0;
@@ -400,8 +393,10 @@ static void TwoPlayerMode()
         break;
     }
   }
+  
   snakeMove(player);
   snakeMove(enemy);
+  
   //check if there is any type of collision
   checkCollisionFruit2P(point, player, enemy);
   if (checkPlayerCollisions2P(player, enemy) == 1 ||checkPlayerCollisions2P(player, enemy) == 2||checkPlayerCollisions2P(player, enemy) == 3 ){
@@ -483,10 +478,8 @@ static void pageHS()
   sprintf(str2, "%d", highscore[1] );
   OrbitOledDrawString(str2);
   
-  
   if(gameInputState.buttons[0].pressed)
   {
-    
     OrbitOledClearBuffer();
     OrbitOledClear();
     gameUiPage= Welcome;

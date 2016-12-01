@@ -3,15 +3,16 @@
 
 #include "game.h"
 
+//size of board
 #define boardWidth 115
 #define boardHeight 32
 
+//function prototypes
 int lowest(int a, int b);
 int findHeuristic(int y1, int x1, int y2, int x2);
 char AiFindDir(snake *p, snake *e, fruit point);
 
 #endif
-
 
 //Board structure and functions used for testing purposes
 //Originally, I had also looked into implementing a basic A* algorithm, in which boards would represent states

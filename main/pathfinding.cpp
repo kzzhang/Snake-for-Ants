@@ -107,7 +107,7 @@ char AiFindDir(snake *p, snake *e, fruit point){
   return dir;
 }
 
-//Board structure functions used for testing purposes
+//Board structure functions used for testing purposes (all are working as intended)
 //Originally, I had also looked into implementing a basic A* algorithm, in which boards would represent states
 //However, the TIVA board lacks the memory to support such an algorithm which such a large board (and thus number of cases)
 /*
