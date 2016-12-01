@@ -22,7 +22,7 @@ int findHeuristic(int y1, int x1, int y2, int x2){
   return changey + changex;
 }
 
-//returns output direction for AI
+//returns output direction for AI using greedy algorithm
 char AiFindDir(snake *p, snake *e, fruit point){
   snake *enemyCopy = snakeCopy(e);
   snake *playerCopy = snakeCopy(p);

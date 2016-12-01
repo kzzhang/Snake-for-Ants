@@ -10,16 +10,17 @@ int showScore = 0;
 //game pages list
 static enum GamePages
 {
-  Welcome       = 0,
-  Modes         = 1,
-  SnakePage     = 2,
-  AIPage        = 3,
-  TwoPlayer     = 4,
-  TwoPlayerScore= 5,
-  AIkilled      = 6,
-  Score         = 7,
-  HighScore     = 8,
-  NumberOfPages = 9,
+  Welcome        =  0,
+  Modes          =  1,
+  SnakePage      =  2,
+  AIPage         =  3,
+  TwoPlayer      =  4,
+  TwoPlayerScore =  5,
+  AIkilled       =  6,
+  Score          =  7,
+  HighScore      =  8,
+  NumberOfPages  =  9,
+  Name           = 10,
 } gameUiPage = Welcome;
 
 //Initlializations
@@ -89,7 +90,6 @@ static void pageWelcome()
     OrbitOledClear();
     gameUiPage = Modes;
   }
-  
 }
 
 //mode page
@@ -129,8 +129,6 @@ static void pageModes()
     OrbitOledClear();
     gameUiPage = HighScore;
   }
-  
- 
 }
 
 //draws the board for one player mode
@@ -510,6 +508,48 @@ static void pageHS()
   }
 }
 
+int blinkState(void){
+  if ((millis()/500)%2) return 1;
+  else return 0;
+}
+
+//page to type in name for highscores
+static void playerName()
+{
+  int current = -1;
+  for (int i = 0; i<5; i++){
+    if (name[i] != 0) current++;
+    if (name[i] >= 65 && name[i] <= 90){
+      Serial.println("true");
+      OrbitOledMoveTo(15+(i*12), boardHeight-20);
+      OrbitOledDrawChar((char)name[i]);
+    }
+  }
+  
+  OrbitOledClearBuffer();
+  OrbitOledMoveTo(0, 0);
+  OrbitOledDrawString("HiScore! Name:");
+  
+  for (int i=0; i<5; i++){
+    for (int j=0; j<8; j++){
+      OrbitOledMoveTo(15+(i*12)+j, boardHeight-10);
+      OrbitOledDrawPixel();
+    }
+  }
+  
+  if (blinkState()){
+    OrbitOledMoveTo(15+(current*12)+3, boardHeight-7);
+    OrbitOledDrawPixel();   
+  }
+
+  
+  
+  if(gameInputState.buttons[0].pressed)
+  {
+    Serial.println("asdf");
+  }
+}
+
 //determines what gamepage to go to
 void GameUIupdate()
 {
@@ -521,7 +561,8 @@ void GameUIupdate()
   switch(gameUiPage)
   {
   case Welcome:
-    pageWelcome();
+    playerName();
+    //pageWelcome();
     break;
   case Modes:
     pageModes();
@@ -546,6 +587,9 @@ void GameUIupdate()
     break;
   case HighScore:
     pageHS();
+    break;
+  case Name:
+    playerName();
     break;
   }
   OrbitOledUpdate();

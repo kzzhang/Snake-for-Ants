@@ -13,6 +13,7 @@
 snake *player = NULL;
 snake *enemy = NULL;
 fruit *point = NULL;
+int name[5] = {0};
 
 uint32_t ui32EEPROMInit;
 uint32_t highscore[2];
@@ -28,9 +29,10 @@ void setup(){
   WireInit();
   Serial.begin(9600);
   delay(100);
+  //initialize name string
+  name[0] = 65;
   //initiate UI
   GameUIInit();
-  Serial.println("begin");
 }
 
 void loop() 
