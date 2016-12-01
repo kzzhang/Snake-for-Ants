@@ -20,3 +20,11 @@ void dataInit(void){
   }
 }
 
+void resetMem(){
+  highscore[0] = 0;
+  highscoreAI[0] = 0;
+  firstPlace[0] = 0;
+  firstPlaceAI[0] = 0;
+}
+
+
