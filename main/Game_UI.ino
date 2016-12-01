@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+int highscore1plr;
+int highscoreAI;
 int showScore = 0;
 //game pages list
 static enum GamePages
@@ -221,7 +223,9 @@ static void pageSnake(){
     OrbitOledClear();
     //check if highscore update needed
     if(player->score >= highscore[0]){
+ 
       highscore[0] = player->score;
+      highscore[1] = highscoreAI;
       EEPROMProgram(highscore, 0x400, sizeof(highscore));
     }
     
@@ -306,7 +310,9 @@ static void AIMode()
   }
   //check if highscore update needed
   if(player->score >= highscore[1]){
+   
       highscore[1] = player->score;
+      highscore[0] = highscore1plr;
       EEPROMProgram(highscore, 0x400, sizeof(highscore));
   }
 }
@@ -490,7 +496,8 @@ static void pageHS()
 //determines what gamepage to go to
 void GameUIupdate()
 {
-  
+  highscore1plr = highscore[0];
+  highscoreAI = highscore[1];
   inputSetup();
   
   switch(gameUiPage)
