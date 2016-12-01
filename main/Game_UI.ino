@@ -507,33 +507,7 @@ static void pageHS()
     sprintf(str, "%d", highscore[0] );
     OrbitOledDrawString(str);
   }
-  /*
-  if(highscore2[0] > 0){
-    for(int i = 0; i< 5; i++){
-        if (secondPlace[i] >= 65 && secondPlace[i] <= 90) {
-          OrbitOledMoveTo(5+i*7, 20);
-          OrbitOledDrawChar((char)secondPlace[i]);
-        }
-    }
-    OrbitOledMoveTo(80, 20);
-    char str[3];
-    sprintf(str, "%d", highscore2[0] );
-    OrbitOledDrawString(str);
-  }
-  if(highscore3[0] > 0){
-    OrbitOledMoveTo(5, 20);
-    for(int i = 0; i< 5; i++){
-        if (thirdPlace[i] >= 65 && thirdPlace[i] <= 90) {
-          OrbitOledDrawChar((char)thirdPlace[i]);
-          OrbitOledMoveTo(5+i*7, 30);
-        }
-    }
-    OrbitOledMoveTo(80, 30);
-    char str[3];
-    sprintf(str, "%d", highscore3[0] );
-    OrbitOledDrawString(str);
-  }
-  */
+
   if(gameInputState.buttons[0].pressed)
   {
     OrbitOledClearBuffer();
@@ -564,34 +538,7 @@ static void pageHSAI()
     sprintf(str, "%d", highscoreAI[0] );
     OrbitOledDrawString(str);
   }
-  /*
-  if(highscoreAI2[0]>0){
-    OrbitOledMoveTo(5, 20);
-    for(int i = 0; i< 5; i++){
-        if (secondPlaceAI[i] >= 65 && secondPlaceAI[i] <= 90) {
-          OrbitOledDrawChar((char)secondPlaceAI[i]);
-          OrbitOledMoveTo(5+i*7, 15);
-        }
-    }
-    OrbitOledMoveTo(80, 20);
-    char str[3];
-    sprintf(str, "%d", highscoreAI2[0] );
-    OrbitOledDrawString(str);
-  }
-  if(highscoreAI3[0]>0){
-    OrbitOledMoveTo(5, 30);
-    for(int i = 0; i< 5; i++){
-        if (thirdPlaceAI[i] >= 65 && thirdPlaceAI[i] < 90) {
-          OrbitOledDrawChar((char)thirdPlaceAI[i]);
-          OrbitOledMoveTo(5+i*7, 20);
-        }
-    }
-    OrbitOledMoveTo(80, 30);
-    char str[3];
-    sprintf(str, "%d", highscoreAI3[0] );
-    OrbitOledDrawString(str);
-  }
-  */
+
   if(gameInputState.buttons[0].pressed)
   {
     OrbitOledClearBuffer();
@@ -614,8 +561,6 @@ void resetArray(uint32_t a[], int n){
   for (int i = 1; i<n; i++) a[i] = 0;
   a[0] = 1;
 }
-
-
 
 //page to type in name for highscores
 static void playerName()
@@ -652,7 +597,7 @@ static void playerName()
     else name[current]++;
   }
   if (gameInputState.buttons[1].pressed){
-    if (current < 4) name[current+1] = 65;
+    if (current < 4 && current > 0) name[current+1] = 65;
   }
   
   if(gameInputState.buttons[4].pressed){
@@ -664,23 +609,12 @@ static void playerName()
         for(int i = 0; i< 5; i++){
            firstPlace[i] = name[i];
         }
-        
         EEPROMProgram(firstPlace, 400, sizeof(firstPlace));
         EEPROMProgram(highscore, 800, sizeof(highscore));
-        
-        /*
-        for (int i = 0; i<5; i++){
-          EEPROM.write(400+(i*4), firstPlace[i]);
-          EEPROM.write(424+(i*4), secondPlace[i]);
-          EEPROM.write(448+(i*4), thirdPlace[i]);
-        }
-        EEPROM.write(800, highscore1);
-        EEPROM.write(804, highscore2);
-        EEPROM.write(808, highscore3);*/
-        }
-     }
-     //AI highscore save name and score to memory
-     if(enemy){
+      }
+    }
+    //AI highscore save name and score to memory
+    if(enemy){
       if(player->score > highscoreAI[0]){
         highscoreAI[0] = player ->score;
         for(int i = 0; i< 5; i++){
