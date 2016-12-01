@@ -24,8 +24,8 @@ static enum GamePages
 } gameUiPage = Welcome;
 
 //Initlializations
-const uint32_t numButtons = 4;
-const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6  };
+const uint32_t numButtons = 5;
+const uint32_t Buttons[numButtons] = {  PD_2, PE_0, PA_7, PA_6, PUSH2  };
 
 struct ButtonState
 { 
@@ -35,7 +35,7 @@ struct ButtonState
 
 static struct InputState
 {
-  struct ButtonState  buttons[4];
+  struct ButtonState buttons[5];
 } gameInputState;
 
 void GameUIInit()
@@ -217,12 +217,6 @@ static void pageSnake(){
     OrbitOledClearBuffer();
     gameUiPage = Score;
     OrbitOledClear();
-    //check if highscore update needed
-    if(player->score >= highscore[0]){
-      highscore[0] = player->score;
-      highscore[1] = highscoreAI;
-      EEPROMProgram(highscore, 0x400, sizeof(highscore));
-    }
   }
   //else display to screen
   else{
@@ -301,12 +295,6 @@ static void AIMode()
     drawBoard2P(player, enemy, point);
     inputSetup();
     delay(calcDelay2P(player, enemy)+25);
-  }
-  //check if highscore update needed
-  if(player->score >= highscore[1]){
-      highscore[1] = player->score;
-      highscore[0] = highscore1plr;
-      EEPROMProgram(highscore, 0x400, sizeof(highscore));
   }
 }
 
@@ -426,11 +414,19 @@ static void pageScore()
   
   if(gameInputState.buttons[0].pressed)
   {
-    player = deleteSnake(player);
-    point = deleteFruit(point);
-    OrbitOledClearBuffer();
-    OrbitOledClear();
-    gameUiPage= Welcome;
+    //check if highscore update needed
+    if(player->score >= highscore[0] || player->score >= highscore[1]){
+      OrbitOledClearBuffer();
+      OrbitOledClear();
+      gameUiPage= Name;
+    }
+    else{
+      player = deleteSnake(player);
+      point = deleteFruit(point);
+      OrbitOledClearBuffer();
+      OrbitOledClear();
+      gameUiPage= Welcome;
+    }
   }
 }
 
@@ -449,11 +445,19 @@ static void killedAI()
   
   if(gameInputState.buttons[0].pressed)
   {
-    player = deleteSnake(player);
-    point = deleteFruit(point);
-    OrbitOledClearBuffer();
-    OrbitOledClear();
-    gameUiPage= Welcome;
+    //check if highscore update needed
+    if(player->score >= highscore[1]){
+      OrbitOledClearBuffer();
+      OrbitOledClear();
+      gameUiPage= Name;
+    }
+    else{
+      player = deleteSnake(player);
+      point = deleteFruit(point);
+      OrbitOledClearBuffer();
+      OrbitOledClear();
+      gameUiPage= Welcome;
+    }
   }
 }
 
@@ -513,40 +517,67 @@ int blinkState(void){
   else return 0;
 }
 
+void resetArray(unsigned int a[], int n){
+  for (int i = 1; i<n; i++) a[i] = 0;
+  a[0] = 1;
+}
+
 //page to type in name for highscores
 static void playerName()
 {
   int current = -1;
+  switchOne = digitalRead(Buttons[2]);
+  switchTwo = digitalRead(Buttons[3]);
+  OrbitOledClearBuffer();
+  OrbitOledMoveTo(0, 0);
+  OrbitOledDrawString("HiScore! Name:");
+
   for (int i = 0; i<5; i++){
     if (name[i] != 0) current++;
     if (name[i] >= 65 && name[i] <= 90){
-      Serial.println("true");
-      OrbitOledMoveTo(15+(i*12), boardHeight-20);
+      OrbitOledMoveTo(15+(i*12), boardHeight-13);
       OrbitOledDrawChar((char)name[i]);
     }
   }
   
-  OrbitOledClearBuffer();
-  OrbitOledMoveTo(0, 0);
-  OrbitOledDrawString("HiScore! Name:");
-  
   for (int i=0; i<5; i++){
     for (int j=0; j<8; j++){
-      OrbitOledMoveTo(15+(i*12)+j, boardHeight-10);
+      OrbitOledMoveTo(15+(i*12)+j, boardHeight-5);
       OrbitOledDrawPixel();
     }
   }
   
   if (blinkState()){
-    OrbitOledMoveTo(15+(current*12)+3, boardHeight-7);
+    OrbitOledMoveTo(15+(current*12)+3, boardHeight-2);
     OrbitOledDrawPixel();   
   }
 
+  if (gameInputState.buttons[0].pressed){
+    if (name[current] < 65 || name[current] >= 90) name[current] = 65;
+    else name[current]++;
+  }
+  if (gameInputState.buttons[1].pressed){
+    if (current < 4) name[current+1] = 65;
+  }
   
-  
-  if(gameInputState.buttons[0].pressed)
-  {
-    Serial.println("asdf");
+  if(gameInputState.buttons[4].pressed){
+    //move to memory
+    //highscore[0] = player->score;
+    //highscore[1] = highscoreAI;
+    //EEPROMProgram(highscore, 0x400, sizeof(highscore));
+//aI:
+      /*highscore[1] = player->score;
+      highscore[0] = highscore1plr;
+      EEPROMProgram(highscore, 0x400, sizeof(highscore));*/
+    
+    //reset globals
+    resetArray(name, 5);
+    player = deleteSnake(player);
+    point = deleteFruit(point);
+    if (enemy) enemy = deleteSnake(enemy);
+    OrbitOledClearBuffer();
+    OrbitOledClear();
+    gameUiPage= Welcome;
   }
 }
 
@@ -561,8 +592,7 @@ void GameUIupdate()
   switch(gameUiPage)
   {
   case Welcome:
-    playerName();
-    //pageWelcome();
+    pageWelcome();
     break;
   case Modes:
     pageModes();
