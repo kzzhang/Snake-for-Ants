@@ -491,10 +491,10 @@ static void pageHS()
 {
   OrbitOledClearBuffer();
   OrbitOledMoveTo(5, 0);
-  OrbitOledDrawString("Highscores:");
+  OrbitOledDrawString("Highscore:");
   EEPROMRead(firstPlace, 400, sizeof(firstPlace));
   EEPROMRead(highscore, 800, sizeof(highscore));
-  //prints out the three top highscores
+  //prints out the top score
   if (highscore[0] > 0){
     for(int i = 0; i< 5; i++){
         if (firstPlace[i] >= 65 && firstPlace[i] <= 90) {
@@ -521,10 +521,10 @@ static void pageHS()
 static void pageHSAI()
 {
   OrbitOledMoveTo(5, 0);
-  OrbitOledDrawString("AI Highscores:");
+  OrbitOledDrawString("AI Highscore:");
   EEPROMRead(firstPlaceAI, 440, sizeof(firstPlaceAI));
   EEPROMRead(highscoreAI, 840, sizeof(highscoreAI));
-  //prints out the three top highscores
+  //prints out the top score
   if(highscoreAI[0]>0){
     OrbitOledMoveTo(5, 10);
     for(int i = 0; i< 5; i++){
@@ -572,6 +572,7 @@ static void playerName()
   OrbitOledMoveTo(0, 0);
   OrbitOledDrawString("HiScore! Name:");
 
+  //draw screen
   for (int i = 0; i<5; i++){
     if (name[i] != 0) current++;
     if (name[i] >= 65 && name[i] <= 90){
@@ -579,19 +580,18 @@ static void playerName()
       OrbitOledDrawChar((char)name[i]);
     }
   }
-  
   for (int i=0; i<5; i++){
     for (int j=0; j<8; j++){
       OrbitOledMoveTo(15+(i*12)+j, boardHeight-5);
       OrbitOledDrawPixel();
     }
   }
-  
   if (blinkState()){
     OrbitOledMoveTo(15+(current*12)+3, boardHeight-2);
     OrbitOledDrawPixel();   
   }
 
+  //buttons for input
   if (gameInputState.buttons[0].pressed){
     if (name[current] < 65 || name[current] >= 90) name[current] = 65;
     else name[current]++;
