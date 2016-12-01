@@ -13,16 +13,28 @@
 snake *player = NULL;
 snake *enemy = NULL;
 fruit *point = NULL;
-unsigned int name[5] = {0};
+uint32_t name[5] = {0};
 
 uint32_t ui32EEPROMInit;
-uint32_t highscore[2];
+uint32_t highscore1[1];
+uint32_t highscore2[1];
+uint32_t highscore3[1];
+uint32_t highscoreAI1[1];
+uint32_t highscoreAI2[1];
+uint32_t highscoreAI3[1];
+uint32_t firstPlace[5];
+uint32_t secondPlace[5];
+uint32_t thirdPlace[5];
+uint32_t firstPlaceAI[5];
+uint32_t secondPlaceAI[5];
+uint32_t thirdPlaceAI[5];
 int switchOne = 1;
 int switchTwo = 1;
 
 void setup(){
   //initialize EEPROM
   dataInit();
+  
   //generate random seed
   randomSeed(analogRead(0));
   //initiate wire
